@@ -1,10 +1,10 @@
 import React from 'react';
-import ExpenseForm from './components/ExpenseForm';
+import DebtTracker from './components/DebtTracker';
 
 function App() {
   return (
     <div className="App">
-      <ExpenseForm />
+      <DebtTracker />
     </div>
   );
 }
