@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './ExpenseForm.css';
+import './DebtTracker.css';
 
 const DebtTracker = () => {
     const [formData, setFormData] = useState({ debtorName: '', amount: '', dueDate: '', status: 'Pending' });
