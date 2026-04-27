@@ -28,17 +28,16 @@ const DebtTracker = () => {
         setFormData({ ...formData, [name]: value });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const newEntry = { ...formData, dateBorrowed: today };
 
         try {
-            axios.post('http://localhost:5000/api/debts/add', newEntry)
-            fetchDebts();
+            await axios.post('http://localhost:5000/api/debts/add', newEntry)
+            await fetchDebts();
             setFormData({ debtorName: '', amount: '', dueDate: '', status: 'Pending' });
         } catch (error) {
             console.error('Error adding debt:', error);
-            alert('Failed to add debt. Please try again.');
         }
     };
 
