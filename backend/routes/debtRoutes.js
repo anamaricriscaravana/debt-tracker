@@ -23,4 +23,16 @@ router.get('/all', async (req, res) => {
     }
 });
 
+router.delete('/:id', async (req, res) => {
+    try {
+        const deletedDebt = await Debt.findByIdAndDelete(req.params.id);
+        if (!deletedDebt) {
+            return res.status(404).json({ message: 'Debt not found' });
+        }
+        res.json({ message: 'Debt deleted successfully' });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
 module.exports = router;
