@@ -168,13 +168,13 @@ const DebtTracker = () => {
                                 <table className={`table table-hover align-middle ${darkMode ? 'table-dark' : ''}`}>
                                     <thead className={darkMode ? 'table-dark' : 'table-light border-bottom'}>
                                         <tr className="small">
-                                            <th className="text-end">Name & Status</th>
-                                            <th className="text-end">Base Amount</th>
-                                            <th className="text-end">Interest</th>
-                                            <th className="text-end">Date Borrowed</th>
-                                            <th className="text-end">Due Date</th>
-                                            <th className="text-primary">Total Amount</th>
-                                            <th className="text-end">Action</th>
+                                            <th className="text-center text-end">Name & Status</th>
+                                            <th className="text-center text-end">Base Amount</th>
+                                            <th className="text-center text-end">Interest</th>
+                                            <th className="text-center text-end">Date Borrowed</th>
+                                            <th className="text-center text-end">Due Date</th>
+                                            <th className="text-center text-primary">Total Amount</th>
+                                            <th className="text-center text-end">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -241,7 +241,7 @@ const DebtTracker = () => {
                                                                 </>
                                                             )}
                                                         </td>
-                                                        <td className="text-end px-3">
+                                                        <td className="text-center text-end px-3">
                                                             <button className="btn btn-sm btn-outline-danger border-0" onClick={() => handleDelete(debt._id)}>
                                                                 Delete
                                                             </button>
