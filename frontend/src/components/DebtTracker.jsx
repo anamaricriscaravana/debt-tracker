@@ -285,7 +285,7 @@ const DebtTracker = () => {
                                                             <select
                                                                 className={`form-select form-select-sm border-0 fw-bold badge ${displayStatus === 'Overdue' ? 'bg-danger' :
                                                                     displayStatus === 'Fully Paid' ? 'bg-success text-white' :
-                                                                       displayStatus === 'Partially Paid' ? 'bg-warning text-dark' : 'bg-secondary text-white'
+                                                                        displayStatus === 'Partially Paid' ? 'bg-warning text-dark' : 'bg-secondary text-white'
                                                                     }`}
                                                                 style={{ width: 'fit-content', cursor: 'pointer', appearance: 'none', textAlign: 'center' }}
                                                                 value={displayStatus}
@@ -323,16 +323,21 @@ const DebtTracker = () => {
                                                                         onClick={async () => {
                                                                             const inputVal = parseFloat(partialInput[debt._id] || 0);
                                                                             if (inputVal <= 0) return alert("Enter valid amount");
-                                                                            const t = calculateTotalWithSmartInterest(debt);
-                                                                            let s = 'Partially Paid';
-                                                                            let a = inputVal;
+                                                                            const totalWithInterest = calculateTotalWithSmartInterest(debt);
+                                                                            const previousPaid = parseFloat(debt.amountPaid || 0);
+                                                                            let newTotalPaid = previousPaid + inputVal;
 
-                                                                            if (inputVal >= t) { s = 'Fully Paid'; a = t; }
+                                                                            let statusToSave = 'Partially Paid';
+
+                                                                            if (newTotalPaid >= totalWithInterest) {
+                                                                                statusToSave = 'Fully Paid';
+                                                                                newTotalPaid = totalWithInterest;
+                                                                            }
 
                                                                             try {
-                                                                                await axios.patch(`http://localhost:5000/api/debts/${debt._id}/status`, { status: s, amountPaid: a });
-                                                                                setIsEditing(null);
+                                                                                await axios.patch(`http://localhost:5000/api/debts/${debt._id}/status`, { status: statusToSave, amountPaid: newTotalPaid });
                                                                                 setPartialInput({ ...partialInput, [debt._id]: '' });
+                                                                                setIsEditing(null);
                                                                                 fetchDebts();
                                                                             } catch (error) {
                                                                                 alert("Update failed");
