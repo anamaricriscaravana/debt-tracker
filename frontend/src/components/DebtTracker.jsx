@@ -69,6 +69,15 @@ const DebtTracker = () => {
         if (parseFloat(formData.amount) <= 0) {
             return alert("Amount must be greater than zero.");
         }
+
+        if (parseFloat(formData.interest) < 0) {
+            return alert("Interest cannot be negative.");
+        }
+
+        if (formData.dueDate && formData.dueDate < formData.debtDate) {
+            return alert("Due date cannot be earlier than the borrowed date.");
+        }
+
         try {
             const dataToSave = { ...formData, status: 'Pending' };
             await axios.post('http://localhost:5000/api/debts/add', dataToSave)
@@ -223,7 +232,7 @@ const DebtTracker = () => {
                                                         </td>
                                                         <td className="fw-semibold">₱{baseAmount.toLocaleString()}</td>
                                                         <td className="text">{interestVal}%</td>
-                                                        <td className="small text">{debt.dueDate || today }</td>
+                                                        <td className="small text">{debt.dueDate || today}</td>
                                                         <td className="small text">{debt.dueDate || 'No Due Date'}</td>
                                                         <td className="fw-bold text-primary">
                                                             {debt.status === 'Fully Paid' ? (
