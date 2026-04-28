@@ -10,6 +10,15 @@ const DebtTracker = () => {
     const [partialInput, setPartialInput] = useState({});
     const [sortConfig, setSortConfig] = useState({ key: 'debtorName', direction: 'asc' });
     const [isEditing, setIsEditing] = useState(null);
+    const [currentTime, setCurrentTime] = useState(new Date());
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setCurrentTime(new Date());
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, []);
 
     const [darkMode, setDarkMode] = useState(() => {
         return localStorage.getItem('debtTrackerTheme') === 'dark';
@@ -179,6 +188,15 @@ const DebtTracker = () => {
                             <span className="fw-bold fs-5">₱{totalDebt.toLocaleString()}</span>
                         </div>
                         <div className="vr mx-2 opacity-50" style={{ height: '30px' }}></div>
+                        <div className="px-3 d-none d-md-block text-center">
+                            <div className="small fw-bold" style={{ fontSize: '0.8rem', lineHeight: '1' }}>
+                                {currentTime.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                            </div>
+                            <small className="opacity-75" style={{ fontSize: '0.7rem' }}>
+                                {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                            </small>
+                        </div>
+                        <div className="vr opacity-25 d-none d-md-block" style={{ height: '30px' }}></div>
                         <button
                             className={`btn btn-sm ${darkMode ? 'btn-warning' : 'btn-light'} rounded-pill px-3 fw-bold`}
                             onClick={() => setDarkMode(!darkMode)}
@@ -332,7 +350,7 @@ const DebtTracker = () => {
                                                                             }, 250);
                                                                         }}
                                                                     />
-                                                                    
+
                                                                     <button
                                                                         className="btn btn-sm btn-success"
                                                                         onClick={async () => {
