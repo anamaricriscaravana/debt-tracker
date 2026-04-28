@@ -6,6 +6,7 @@ const DebtTracker = () => {
     const today = new Date().toLocaleDateString('en-CA');
     const [formData, setFormData] = useState({ debtorName: '', amount: '', debtDate: today, dueDate: '', interest: 0 });
     const [debts, setDebts] = useState([]);
+    const [searchTerm, setSearchTerm] = useState('');
 
     const fetchDebts = async () => {
         try {
@@ -20,7 +21,16 @@ const DebtTracker = () => {
         fetchDebts();
     }, []);
 
-    const totalDebt = debts.reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0);
+    const filteredDebts = debts.filter(debt =>
+        debt.debtorName.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const totalDebt = filteredDebts.reduce((acc, curr) => {
+        const baseAmount = parseFloat(curr.amount || 0);
+        const interestVal = parseFloat(curr.interest || 0);
+        const totalWithInterest = baseAmount + (baseAmount * (interestVal / 100));
+        return acc + totalWithInterest;
+    }, 0);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -132,6 +142,17 @@ const DebtTracker = () => {
                         <div className="card shadow-sm border-0">
                             <div className="card-body p-4">
                                 <h5 className="card-title mb-4 fw-bold text-dark">Collection History</h5>
+
+                                <div className="mb-3">
+                                    <input 
+                                        type="text" 
+                                        className="form-control shadow-sm" 
+                                        placeholder="Search..." 
+                                        value={searchTerm}  
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                </div>
+
                                 <div className="table-responsive">
                                     <table className="table table-hover align-middle border-top">
                                         <thead className="table-light">
@@ -146,8 +167,8 @@ const DebtTracker = () => {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {debts.length > 0 ? (
-                                                debts.map((debt) => {
+                                            {filteredDebts.length > 0 ? (
+                                                filteredDebts.map((debt) => {
                                                     const baseAmount = parseFloat(debt.amount || 0);
                                                     const interestVal = parseFloat(debt.interest || 0);
                                                     const totalWithInterest = baseAmount + (baseAmount * (interestVal / 100));
