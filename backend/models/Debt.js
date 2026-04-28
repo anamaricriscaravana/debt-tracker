@@ -9,4 +9,4 @@ const DebtSchema = new mongoose.Schema({
     status: { type: String, enum: ['Pending', 'Partially Paid', 'Fully Paid', 'Overdue'], default: 'Pending' },
 }, { timestamps: true });
 
-module.exports = mongoose.getModels().Debt || mongoose.model('Debt', DebtSchema);
+module.exports = mongoose.models.Debt || mongoose.model('Debt', DebtSchema);
