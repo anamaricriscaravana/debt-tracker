@@ -3,7 +3,7 @@ import axios from 'axios';
 import './DebtTracker.css';
 
 const DebtTracker = () => {
-    const [formData, setFormData] = useState({ debtorName: '', amount: '', dueDate: '', status: 'Pending' });
+    const [formData, setFormData] = useState({ debtorName: '', amount: '', debtDate: today, dueDate: '', interest: 0 });
     const [debts, setDebts] = useState([]);
 
     const today = new Date().toLocaleDateString('en-CA');
@@ -42,12 +42,24 @@ const DebtTracker = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const newEntry = { ...formData, dateBorrowed: today };
+
+        if (parseFloat(formData.amount) <= 0) {
+            return alert("Amount must be greater than zero.");
+        }
+
+        if (formData.debtDate > today) {
+            return alert("Debt date cannot be in the future.");
+        }
+
+        const year = formData.debtDate.split('-')[0];
+        if (year.length < 4) {
+            return alert("Please enter a valid year");
+        }
 
         try {
-            await axios.post('http://localhost:5000/api/debts/add', newEntry)
+            await axios.post('http://localhost:5000/api/debts/add', formData)
             await fetchDebts();
-            setFormData({ debtorName: '', amount: '', dueDate: '', status: 'Pending' });
+            setFormData({ debtorName: '', amount: '', debtDate: today, dueDate: '', interest: 0 });
         } catch (error) {
             console.error('Error adding debt:', error);
             alert("Failed to add debt. Please check your input and try again.");
@@ -86,16 +98,16 @@ const DebtTracker = () => {
                                         <input name="amount" type="number" className="form-control" placeholder="0.00" value={formData.amount} onChange={handleChange} required />
                                     </div>
                                     <div className="mb-3">
-                                        <label className="form-label fw-semibold">Status</label>
-                                        <select name="status" className="form-select" value={formData.status} onChange={handleChange} required>
-                                            <option value="Pending">Pending</option>
-                                            <option value="Fully Paid">Fully Paid</option>
-                                            <option value="Overdue">Overdue</option>
-                                        </select>
+                                        <label className="form-label fw-semibold">Interest (%) <small className="text-muted">(Optional)</small></label>
+                                        <input name="interest" type="number" className="form-control" placeholder="0" value={formData.interest} onChange={handleChange} />
                                     </div>
                                     <div className="mb-3">
-                                        <label className="form-label fw-semibold">Due Date</label>
-                                        <input name="dueDate" type="date" className="form-control" value={formData.dueDate} onChange={handleChange} required />
+                                        <label className="form-label fw-semibold">Date Borrowed</label>
+                                        <input name="debtDate" type="date" className="form-control" max={today} value={formData.debtDate} onChange={handleChange} required />
+                                    </div>
+                                    <div className="mb-3">
+                                        <label className="form-label fw-semibold">Due Date<small className="text-muted">(Optional)</small></label>
+                                        <input name="dueDate" type="date" className="form-control" value={formData.dueDate} onChange={handleChange} />
                                     </div>
                                     <button type="submit" className="btn btn-primary w-100 fw-bold py-2 shadow-sm text-white">
                                         Add to Records
