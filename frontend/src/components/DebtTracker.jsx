@@ -183,7 +183,7 @@ const DebtTracker = () => {
                             className={`btn btn-sm ${darkMode ? 'btn-warning' : 'btn-light'} rounded-pill px-3 fw-bold`}
                             onClick={() => setDarkMode(!darkMode)}
                         >
-                            {darkMode ? '☀️ Light mode' : '🌙 Dark mode'}
+                            {darkMode ? '☀️' : '🌙'}
                         </button>
                     </div>
                 </div>
