@@ -9,6 +9,7 @@ const DebtTracker = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [partialInput, setPartialInput] = useState({});
     const [sortConfig, setSortConfig] = useState({ key: 'debtorName', direction: 'asc' });
+    const [isEditing, setIsEditing] = useState(null);
 
     const [darkMode, setDarkMode] = useState(() => {
         return localStorage.getItem('debtTrackerTheme') === 'dark';
@@ -121,11 +122,45 @@ const DebtTracker = () => {
     };
 
     const handleStatusChange = async (id, newStatus, amount = 0) => {
+        const debt = debts.find(d => d._id === id);
+        if (!debt) return;
+
+        const totalWithInterest = calculateTotalWithSmartInterest(debt);
+        const currentPaid = parseFloat(debt.amountPaid || 0);
+
+        if (debt.status === 'Fully Paid') {
+            alert("This record is already fully paid and locked.");
+            return;
+        }
+
+        if (newStatus === 'Pending' && (debt.status === 'Partially Paid' || currentPaid > 0)) {
+            alert("Cannot revert to Pending. Payments have already been made.");
+            return;
+        }
+
+        if (newStatus === 'Pending' && debt.status === 'Overdue') {
+            alert("Cannot revert an Overdue debt to Pending.");
+            return;
+        }
+
+        if (newStatus === 'Partially Paid') {
+            setIsEditing(id);
+            return;
+        }
+
+        let finalAmountPaid = currentPaid;
+
+        if (newStatus === 'Fully Paid') {
+            finalAmountPaid = totalWithInterest;
+        }
+
         try {
-            const amountToPay = parseFloat(amount || 0);
-            await axios.patch(`http://localhost:5000/api/debts/${id}/status`, { status: newStatus, amountPaid: amountToPay });
+            await axios.patch(`http://localhost:5000/api/debts/${id}/status`, {
+                status: newStatus,
+                amountPaid: finalAmountPaid
+            });
+            setIsEditing(null);
             fetchDebts();
-            setPartialInput({ ...partialInput, [id]: '' });
         } catch (error) {
             console.error("Update failed:", error);
             alert("Failed to update status.");
@@ -237,42 +272,72 @@ const DebtTracker = () => {
                                         {sortedDebts.length > 0 ? (
                                             sortedDebts.map((debt) => {
                                                 const baseAmount = parseFloat(debt.amount || 0);
-                                                const interestVal = parseFloat(debt.interest || 0);
                                                 const totalWithInterest = calculateTotalWithSmartInterest(debt);
                                                 const remainingBalance = totalWithInterest - (debt.amountPaid || 0);
-                                                const isActuallyOverdue = debt.status !== 'Fully Paid' && debt.dueDate && today > debt.dueDate;
-                                                
+
+                                                const isPastDue = debt.dueDate && today > debt.dueDate;
+                                                const displayStatus = (isPastDue && debt.status !== 'Fully Paid') ? 'Overdue' : debt.status;
+
                                                 return (
                                                     <tr key={debt._id} className={darkMode ? 'border-secondary' : ''}>
                                                         <td>
                                                             <div className={`fw-bold ${darkMode ? 'text-light' : 'text-dark'}`}>{debt.debtorName}</div>
                                                             <select
-                                                                className={`form-select form-select-sm border-0 fw-bold badge ${debt.status === 'Overdue' ? 'bg-danger' :
-                                                                    debt.status === 'Fully Paid' ? 'bg-success text-white' :
-                                                                        debt.status === 'Partially Paid' ? 'bg-warning text-dark' : 'bg-secondary text-white'
+                                                                className={`form-select form-select-sm border-0 fw-bold badge ${displayStatus === 'Overdue' ? 'bg-danger' :
+                                                                    displayStatus === 'Fully Paid' ? 'bg-success text-white' :
+                                                                       displayStatus === 'Partially Paid' ? 'bg-warning text-dark' : 'bg-secondary text-white'
                                                                     }`}
                                                                 style={{ width: 'fit-content', cursor: 'pointer', appearance: 'none', textAlign: 'center' }}
-                                                                value={debt.status}
+                                                                value={displayStatus}
+                                                                disabled={debt.status === 'Fully Paid'}
                                                                 onChange={(e) => handleStatusChange(debt._id, e.target.value, debt.amountPaid)}
                                                             >
-                                                                <option value="Pending">Pending </option>
+                                                                {!(debt.status === 'Partially Paid' || displayStatus === 'Overdue' || debt.amountPaid > 0) && (
+                                                                    <option value="Pending">Pending</option>
+                                                                )}
                                                                 <option value="Partially Paid">Partially Paid </option>
                                                                 <option value="Fully Paid">Fully Paid </option>
                                                                 <option value="Overdue">Overdue </option>
                                                             </select>
-                                                            {debt.status === 'Partially Paid' && (
-                                                                <div className="mt-2 d-flex gap-1">
+                                                            {(debt.status === 'Partially Paid' || isEditing === debt._id) && (
+                                                                <div className="mt-2 d-flex gap-1 animate__animated animate__fadeIn">
                                                                     <input
                                                                         type="number"
-                                                                        className="form-control form-control-sm"
+                                                                        className={`form-control form-control-sm ${darkMode ? 'bg-dark text-white border-secondary' : ''}`}
                                                                         placeholder="Amt Paid"
                                                                         style={{ width: '80px' }}
                                                                         value={partialInput[debt._id] || ''}
+                                                                        autoFocus
                                                                         onChange={(e) => setPartialInput({ ...partialInput, [debt._id]: e.target.value })}
+                                                                        onBlur={() => {
+                                                                            setTimeout(() => {
+                                                                                if (!partialInput[debt._id]) {
+                                                                                    setIsEditing(null);
+                                                                                    fetchDebts();
+                                                                                }
+                                                                            }, 200);;
+                                                                        }}
                                                                     />
                                                                     <button
                                                                         className="btn btn-sm btn-success"
-                                                                        onClick={() => handleStatusChange(debt._id, 'Partially Paid', partialInput[debt._id])}
+                                                                        onClick={async () => {
+                                                                            const inputVal = parseFloat(partialInput[debt._id] || 0);
+                                                                            if (inputVal <= 0) return alert("Enter valid amount");
+                                                                            const t = calculateTotalWithSmartInterest(debt);
+                                                                            let s = 'Partially Paid';
+                                                                            let a = inputVal;
+
+                                                                            if (inputVal >= t) { s = 'Fully Paid'; a = t; }
+
+                                                                            try {
+                                                                                await axios.patch(`http://localhost:5000/api/debts/${debt._id}/status`, { status: s, amountPaid: a });
+                                                                                setIsEditing(null);
+                                                                                setPartialInput({ ...partialInput, [debt._id]: '' });
+                                                                                fetchDebts();
+                                                                            } catch (error) {
+                                                                                alert("Update failed");
+                                                                            }
+                                                                        }}
                                                                     >
                                                                         ✓
                                                                     </button>
@@ -280,7 +345,7 @@ const DebtTracker = () => {
                                                             )}
                                                         </td>
                                                         <td className="fw-semibold">₱{baseAmount.toLocaleString()}</td>
-                                                        <td className="text">{interestVal}%</td>
+                                                        <td className="text">{debt.interest}%</td>
                                                         <td className="small text">{debt.dueDate || today}</td>
                                                         <td className="small text">{debt.dueDate || 'No Due Date'}</td>
                                                         <td className="fw-bold text-primary">
