@@ -97,11 +97,11 @@ const DebtTracker = () => {
                 </div>
             </nav>
 
-            <div className="container-fluid px-4 py-4 overflow-hidden">
-                <div className="row g-4">
+            <div className="flex-grow-1 container-fluid px-4 py-4 overflow-hidden">
+                <div className="row g-4 h-100">
                     {/* Record Form */}
-                    <div className="col-lg-3">
-                        <div className="card shadow-sm border-0 sticky-lg-top" style={{ top: '90px' }}>
+                    <div className="col-lg-3 h-100 overflow-auto">
+                        <div className="card shadow-sm border-0 h-100">
                             <div className="card-body p-4">
                                 <h5 className="fw-bold mb-4 text-dark border-bottom pb-2">Record New Debt</h5>
                                 <form onSubmit={handleSubmit}>
@@ -134,8 +134,8 @@ const DebtTracker = () => {
                     </div>
 
                     {/*Table Side*/}
-                    <div className="col-lg-9">
-                        <div className="card shadow-sm border-0">
+                    <div className="col-lg-9 h-100 overflow-auto">
+                        <div className="card shadow-sm border-0 h-100">
                             <div className="card-body p-4">
                                 <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
                                     <h5 className="fw-bold mb-0 text-dark">Active Debt List</h5>
