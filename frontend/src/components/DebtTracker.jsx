@@ -126,7 +126,7 @@ const DebtTracker = () => {
                                         <thead className="table-light">
                                             <tr>
                                                 <th>Debtor & Status</th>
-                                                <th>Base Amount (PHP) </th>
+                                                <th>Base Amount</th>
                                                 <th>Interest (%)</th>
                                                 <th>Date Borrowed</th>
                                                 <th>Due Date</th>
