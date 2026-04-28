@@ -8,6 +8,7 @@ const DebtTracker = () => {
     const [debts, setDebts] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [partialInput, setPartialInput] = useState({});
+    const [sortConfig, setSortConfig] = useState({ key: 'debtorName', direction: 'asc' });
 
     const [darkMode, setDarkMode] = useState(() => {
         return localStorage.getItem('debtTrackerTheme') === 'dark';
@@ -38,12 +39,42 @@ const DebtTracker = () => {
         debt.debtorName.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    const calculateTotalWithSmartInterest = (debt) => {
+        const baseAmount = parseFloat(debt.amount || 0);
+        const interestVal = parseFloat(debt.interest || 0);
+        const isPastDue = debt.dueDate && today > debt.dueDate;
+        const shouldApplyInterest = isPastDue && debt.status !== 'Fully Paid';
+        const appliedInterest = shouldApplyInterest ? (baseAmount * (interestVal / 100)) : 0;
+        return baseAmount + appliedInterest;
+    };
+
+    const requestSort = (key) => {
+        let direction = 'asc';
+        if (sortConfig.key === key && sortConfig.direction === 'asc') {
+            direction = 'desc';
+        }
+        setSortConfig({ key, direction });
+    };
+
+    const sortedDebts = [...filteredDebts].sort((a, b) => {
+        let aValue = a[sortConfig.key];
+        let bValue = b[sortConfig.key];
+
+        if (['amount', 'interest'].includes(sortConfig.key)) {
+            aValue = parseFloat(aValue || 0);
+            bValue = parseFloat(bValue || 0);
+        }
+
+        if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+        if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+        return 0;
+    });
+
     const totalDebt = filteredDebts.reduce((acc, curr) => {
-        const baseAmount = parseFloat(curr.amount || 0);
-        const interestVal = parseFloat(curr.interest || 0);
-        const totalWithInterest = baseAmount + (baseAmount * (interestVal / 100));
+        if (curr.status === 'Fully Paid') return acc;
+        const totalWithInterest = calculateTotalWithSmartInterest(curr);
         const balance = totalWithInterest - (curr.amountPaid || 0);
-        return curr.status === 'Fully Paid' ? acc : acc + balance;
+        return acc + balance;
     }, 0);
 
     const handleChange = (e) => {
@@ -177,11 +208,27 @@ const DebtTracker = () => {
                                 <table className={`table table-hover align-middle ${darkMode ? 'table-dark' : ''}`}>
                                     <thead className={darkMode ? 'table-dark' : 'table-light border-bottom'}>
                                         <tr className="small">
-                                            <th className="text-center">Name & Status</th>
-                                            <th className="text-center">Base Amount</th>
+                                            <th onClick={() => requestSort('debtorName')} style={{ cursor: 'pointer', transition: 'all 0.2s' }} className="text-center">
+                                                Name & Status
+                                                <span className="ms-1 opacity-50" style={{ fontSize: '0.8rem' }}>
+                                                    {sortConfig.key === 'debtorName' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}
+                                                </span></th>
+                                            <th onClick={() => requestSort('amount')} style={{ cursor: 'pointer' }} className="text-center">
+                                                Base Amount
+                                                <span className="ms-1 opacity-50" style={{ fontSize: '0.8rem' }}>
+                                                    {sortConfig.key === 'amount' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}
+                                                </span></th>
                                             <th className="text-center">Interest</th>
-                                            <th className="text-center">Date Borrowed</th>
-                                            <th className="text-center">Due Date</th>
+                                            <th onClick={() => requestSort('debtDate')} style={{ cursor: 'pointer' }} className="text-center">
+                                                Borrowed
+                                                <span className="ms-1 opacity-50" style={{ fontSize: '0.8rem' }}>
+                                                    {sortConfig.key === 'debtDate' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}
+                                                </span></th>
+                                            <th onClick={() => requestSort('dueDate')} style={{ cursor: 'pointer' }} className="text-center">
+                                                Due Date
+                                                <span className="ms-1 opacity-50" style={{ fontSize: '0.8rem' }}>
+                                                    {sortConfig.key === 'dueDate' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}
+                                                </span></th>
                                             <th className="text-center">Total Amount</th>
                                             <th className="text-center">Action</th>
                                         </tr>
