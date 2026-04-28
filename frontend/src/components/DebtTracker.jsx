@@ -7,6 +7,7 @@ const DebtTracker = () => {
     const [formData, setFormData] = useState({ debtorName: '', amount: '', debtDate: today, dueDate: '', interest: 0 });
     const [debts, setDebts] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
+    const [partialInput, setPartialInput] = useState({});
 
     const fetchDebts = async () => {
         try {
@@ -29,7 +30,8 @@ const DebtTracker = () => {
         const baseAmount = parseFloat(curr.amount || 0);
         const interestVal = parseFloat(curr.interest || 0);
         const totalWithInterest = baseAmount + (baseAmount * (interestVal / 100));
-        return acc + totalWithInterest;
+        const balance = totalWithInterest - (curr.amountPaid || 0);
+        return curr.status === 'Fully Paid' ? acc : acc + balance;
     }, 0);
 
     const handleChange = (e) => {
@@ -55,18 +57,8 @@ const DebtTracker = () => {
         if (parseFloat(formData.amount) <= 0) {
             return alert("Amount must be greater than zero.");
         }
-
-        if (formData.debtDate > today) {
-            return alert("Debt date cannot be in the future.");
-        }
-
-        const year = formData.debtDate.split('-')[0];
-        if (year.length < 4) {
-            return alert("Please enter a valid year");
-        }
-
         try {
-            const dataToSave = {...formData, status: 'Pending'};
+            const dataToSave = { ...formData, status: 'Pending' };
             await axios.post('http://localhost:5000/api/debts/add', dataToSave)
             await fetchDebts();
             setFormData({ debtorName: '', amount: '', debtDate: today, dueDate: '', interest: 0 });
@@ -76,10 +68,12 @@ const DebtTracker = () => {
         }
     };
 
-    const handleStatusChange = async (id, newStatus) => {
+    const handleStatusChange = async (id, newStatus, amount = 0) => {
         try {
-            await axios.patch(`http://localhost:5000/api/debts/${id}/status`, { status: newStatus });
-            fetchDebts(); // Refresh table
+            const amountToPay = parseFloat(amount || 0);
+            await axios.patch(`http://localhost:5000/api/debts/${id}/status`, { status: newStatus, amountPaid: amountToPay });
+            fetchDebts();
+            setPartialInput({ ...partialInput, [id]: '' });
         } catch (error) {
             console.error("Update failed:", error);
             alert("Failed to update status.");
@@ -144,11 +138,11 @@ const DebtTracker = () => {
                                 <h5 className="card-title mb-4 fw-bold text-dark">Collection History</h5>
 
                                 <div className="mb-3">
-                                    <input 
-                                        type="text" 
-                                        className="form-control shadow-sm" 
-                                        placeholder="Search..." 
-                                        value={searchTerm}  
+                                    <input
+                                        type="text"
+                                        className="form-control shadow-sm"
+                                        placeholder="Search..."
+                                        value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
                                     />
                                 </div>
@@ -172,6 +166,7 @@ const DebtTracker = () => {
                                                     const baseAmount = parseFloat(debt.amount || 0);
                                                     const interestVal = parseFloat(debt.interest || 0);
                                                     const totalWithInterest = baseAmount + (baseAmount * (interestVal / 100));
+                                                    const remainingBalance = totalWithInterest - (debt.amountPaid || 0);
                                                     return (
                                                         <tr key={debt._id}>
                                                             <td>
@@ -183,19 +178,52 @@ const DebtTracker = () => {
                                                                         }`}
                                                                     style={{ width: 'fit-content', cursor: 'pointer', appearance: 'none', textAlign: 'center' }}
                                                                     value={debt.status}
-                                                                    onChange={(e) => handleStatusChange(debt._id, e.target.value)}
+                                                                    onChange={(e) => handleStatusChange(debt._id, e.target.value, debt.amountPaid)}
                                                                 >
                                                                     <option value="Pending">Pending </option>
                                                                     <option value="Partially Paid">Partially Paid </option>
                                                                     <option value="Fully Paid">Fully Paid </option>
                                                                     <option value="Overdue">Overdue </option>
                                                                 </select>
+                                                                {debt.status === 'Partially Paid' && (
+                                                                    <div className="mt-2 d-flex gap-1 animate__animated animate__fadeIn">
+                                                                        <input
+                                                                            type="number"
+                                                                            className="form-control form-control-sm"
+                                                                            placeholder="Amt Paid"
+                                                                            style={{ width: '80px' }}
+                                                                            value={partialInput[debt._id] || ''}
+                                                                            onChange={(e) => setPartialInput({ ...partialInput, [debt._id]: e.target.value })}
+                                                                        />
+                                                                        <button
+                                                                            className="btn btn-sm btn-success"
+                                                                            onClick={() => handleStatusChange(debt._id, 'Partially Paid', partialInput[debt._id])}
+                                                                        >
+                                                                            ✓
+                                                                        </button>
+                                                                    </div>
+                                                                )}
                                                             </td>
                                                             <td className="fw-semibold">₱{baseAmount.toLocaleString()}</td>
                                                             <td className="text-muted">{interestVal}%</td>
                                                             <td className="text-muted">{debt.dueDate}</td>
                                                             <td className="text-muted">{debt.dueDate || 'No Due Date'}</td>
-                                                            <td className="fw-bold text-primary">₱{totalWithInterest.toLocaleString()}</td>
+                                                            <td className="fw-bold text-primary">
+                                                                {debt.status === 'Fully Paid' ? (
+                                                                    <span className="text-muted text-decoration-line-through">
+                                                                        ₱{totalWithInterest.toLocaleString()}
+                                                                    </span>
+                                                                ) : (
+                                                                    <>
+                                                                        <div>₱{remainingBalance.toLocaleString()}</div>
+                                                                        {debt.amountPaid > 0 && (
+                                                                            <small className="text-success d-block" style={{ fontSize: '0.7rem', fontWeight: 'normal' }}>
+                                                                                Paid: ₱{debt.amountPaid}
+                                                                            </small>
+                                                                        )}
+                                                                    </>
+                                                                )}
+                                                            </td>
                                                             <td className="text-end">
                                                                 <button className="btn btn-sm btn-outline-danger border-0" onClick={() => handleDelete(debt._id)}>
                                                                     Delete
