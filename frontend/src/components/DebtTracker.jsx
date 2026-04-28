@@ -168,13 +168,13 @@ const DebtTracker = () => {
                                 <table className={`table table-hover align-middle ${darkMode ? 'table-dark' : ''}`}>
                                     <thead className={darkMode ? 'table-dark' : 'table-light border-bottom'}>
                                         <tr className="small">
-                                            <th className="text-center text-end">Name & Status</th>
-                                            <th className="text-center text-end">Base Amount</th>
-                                            <th className="text-center text-end">Interest</th>
-                                            <th className="text-center text-end">Date Borrowed</th>
-                                            <th className="text-center text-end">Due Date</th>
-                                            <th className="text-center text-primary">Total Amount</th>
-                                            <th className="text-center text-end">Action</th>
+                                            <th className="text-center">Name & Status</th>
+                                            <th className="text-center">Base Amount</th>
+                                            <th className="text-center">Interest</th>
+                                            <th className="text-center">Date Borrowed</th>
+                                            <th className="text-center">Due Date</th>
+                                            <th className="text-center">Total Amount</th>
+                                            <th className="text-center">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -223,7 +223,7 @@ const DebtTracker = () => {
                                                         </td>
                                                         <td className="fw-semibold">₱{baseAmount.toLocaleString()}</td>
                                                         <td className="text">{interestVal}%</td>
-                                                        <td className="small text">{debt.dueDate}</td>
+                                                        <td className="small text">{debt.dueDate || today }</td>
                                                         <td className="small text">{debt.dueDate || 'No Due Date'}</td>
                                                         <td className="fw-bold text-primary">
                                                             {debt.status === 'Fully Paid' ? (
@@ -241,7 +241,7 @@ const DebtTracker = () => {
                                                                 </>
                                                             )}
                                                         </td>
-                                                        <td className="text-center text-end px-3">
+                                                        <td className="text-center px-3">
                                                             <button className="btn btn-sm btn-outline-danger border-0" onClick={() => handleDelete(debt._id)}>
                                                                 Delete
                                                             </button>
