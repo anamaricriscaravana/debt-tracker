@@ -56,12 +56,23 @@ const DebtTracker = () => {
         }
 
         try {
-            await axios.post('http://localhost:5000/api/debts/add', formData)
+            const dataToSave = {...formData, status: 'Pending'};
+            await axios.post('http://localhost:5000/api/debts/add', dataToSave)
             await fetchDebts();
             setFormData({ debtorName: '', amount: '', debtDate: today, dueDate: '', interest: 0 });
         } catch (error) {
             console.error('Error adding debt:', error);
             alert("Failed to add debt. Please check your input and try again.");
+        }
+    };
+
+    const handleStatusChange = async (id, newStatus) => {
+        try {
+            await axios.patch(`http://localhost:5000/api/debts/${id}/status`, { status: newStatus });
+            fetchDebts(); // Refresh table
+        } catch (error) {
+            console.error("Update failed:", error);
+            alert("Failed to update status.");
         }
     };
 
@@ -144,14 +155,20 @@ const DebtTracker = () => {
                                                         <tr key={debt._id}>
                                                             <td>
                                                                 <div className="fw-bold text-dark">{debt.debtorName}</div>
-                                                                <span className={`badge border-0 ${debt.status === 'Fully Paid' ? 'bg-success' :
-                                                                    debt.status === 'Partially Paid' ? 'bg-warning text-dark' : 'bg-secondary'
-                                                                    }`}
-                                                                    style={{ cursor: 'pointer' }}
-                                                                    onClick={() => handleStatusToggle(debt._id, debt.status)}
+                                                                <select
+                                                                    className={`form-select form-select-sm border-0 fw-bold badge ${debt.status === 'Overdue' ? 'bg-danger' :
+                                                                        debt.status === 'Fully Paid' ? 'bg-success text-white' :
+                                                                            debt.status === 'Partially Paid' ? 'bg-warning text-dark' : 'bg-secondary text-white'
+                                                                        }`}
+                                                                    style={{ width: 'fit-content', cursor: 'pointer', appearance: 'none', textAlign: 'center' }}
+                                                                    value={debt.status}
+                                                                    onChange={(e) => handleStatusChange(debt._id, e.target.value)}
                                                                 >
-                                                                    {debt.status}
-                                                                </span>
+                                                                    <option value="Pending">Pending </option>
+                                                                    <option value="Partially Paid">Partially Paid </option>
+                                                                    <option value="Fully Paid">Fully Paid </option>
+                                                                    <option value="Overdue">Overdue </option>
+                                                                </select>
                                                             </td>
                                                             <td className="fw-semibold">₱{baseAmount.toLocaleString()}</td>
                                                             <td className="text-muted">{interestVal}%</td>
@@ -167,7 +184,7 @@ const DebtTracker = () => {
                                                     );
                                                 })
                                             ) : (
-                                                <tr><td colSpan="4" className="text-center">No debt records found.</td></tr>
+                                                <tr><td colSpan="7" className="text-center">No debt records found.</td></tr>
                                             )}
                                         </tbody>
                                     </table>
