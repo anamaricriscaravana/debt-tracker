@@ -3,10 +3,9 @@ import axios from 'axios';
 import './DebtTracker.css';
 
 const DebtTracker = () => {
+    const today = new Date().toLocaleDateString('en-CA');
     const [formData, setFormData] = useState({ debtorName: '', amount: '', debtDate: today, dueDate: '', interest: 0 });
     const [debts, setDebts] = useState([]);
-
-    const today = new Date().toLocaleDateString('en-CA');
 
     const fetchDebts = async () => {
         try {
