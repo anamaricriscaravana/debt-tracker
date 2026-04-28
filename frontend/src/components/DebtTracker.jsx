@@ -81,9 +81,9 @@ const DebtTracker = () => {
     };
 
     return (
-        <div className="min-vh-100 bg-light">
+        <div className="min-vh-100 bg-light w-100 vw-100 overflow-hidden">
             {/* Navbar with Total Display */}
-            <nav className="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm sticky-top">
+            <nav className="navbar navbar-dark bg-primary shadow-sm sticky-top w-100">
                 <div className="container-fluid px-4">
                     <span className="navbar-brand fw-bold fs-4">DEBT TRACKER</span>
                     <div className="d-flex align-items-center text-white gap-3 ms-auto">
@@ -97,7 +97,7 @@ const DebtTracker = () => {
                 </div>
             </nav>
 
-            <div className="container-fluid py-4 px-md-5">
+            <div className="container-fluid px-4 py-4 overflow-hidden">
                 <div className="row g-4">
                     {/* Record Form */}
                     <div className="col-lg-3">
@@ -106,7 +106,7 @@ const DebtTracker = () => {
                                 <h5 className="fw-bold mb-4 text-dark border-bottom pb-2">Record New Debt</h5>
                                 <form onSubmit={handleSubmit}>
                                     <div className="mb-3">
-                                        <label className="form-label small fw-bold text-muted">Debtor Name</label>
+                                        <label className="form-label small fw-bold">Debtor Name</label>
                                         <input name="debtorName" className="form-control form-control-sm shadow-none" placeholder="Who borrowed?" value={formData.debtorName} onChange={handleChange} required />
                                     </div>
                                     <div className="mb-3">
