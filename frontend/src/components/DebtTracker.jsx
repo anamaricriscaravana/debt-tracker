@@ -234,12 +234,14 @@ const DebtTracker = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {filteredDebts.length > 0 ? (
-                                            filteredDebts.map((debt) => {
+                                        {sortedDebts.length > 0 ? (
+                                            sortedDebts.map((debt) => {
                                                 const baseAmount = parseFloat(debt.amount || 0);
                                                 const interestVal = parseFloat(debt.interest || 0);
-                                                const totalWithInterest = baseAmount + (baseAmount * (interestVal / 100));
+                                                const totalWithInterest = calculateTotalWithSmartInterest(debt);
                                                 const remainingBalance = totalWithInterest - (debt.amountPaid || 0);
+                                                const isActuallyOverdue = debt.status !== 'Fully Paid' && debt.dueDate && today > debt.dueDate;
+                                                
                                                 return (
                                                     <tr key={debt._id} className={darkMode ? 'border-secondary' : ''}>
                                                         <td>
