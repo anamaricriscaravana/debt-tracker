@@ -4,10 +4,22 @@ import './DebtTracker.css';
 
 const DebtTracker = () => {
     const today = new Date().toLocaleDateString('en-CA');
-    const [formData, setFormData] = useState({ debtorName: '', amount: '', debtDate: today, dueDate: '', interest: 0 });
+    const [formData, setFormData] = useState({ debtorName: '', amount: '', debtDate: today, dueDate: '', interest: '' });
     const [debts, setDebts] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [partialInput, setPartialInput] = useState({});
+
+    const [darkMode, setDarkMode] = useState(() => {
+        return localStorage.getItem('debtTrackerTheme') === 'dark';
+    });
+
+    useEffect(() => {
+        if (darkMode) {
+            localStorage.setItem('debtTrackerTheme', 'dark');
+        } else {
+            localStorage.setItem('debtTrackerTheme', 'light');
+        }
+    }, [darkMode]);
 
     const fetchDebts = async () => {
         try {
@@ -81,9 +93,9 @@ const DebtTracker = () => {
     };
 
     return (
-        <div className="min-vh-100 bg-light w-100 vw-100 overflow-hidden">
+        <div className={`min-vh-100 ${darkMode ? 'bg-dark text-white' : 'bg-light'} w-100 vw-100 overflow-hidden transition-all`}>
             {/* Navbar with Total Display */}
-            <nav className="navbar navbar-dark bg-primary shadow-sm sticky-top w-100">
+            <nav className={`navbar ${darkMode ? 'navbar-dark bg-black' : 'navbar-dark bg-primary'} shadow-sm sticky-top w-100`}>
                 <div className="container-fluid px-4">
                     <span className="navbar-brand fw-bold fs-4">DEBT TRACKER</span>
                     <div className="d-flex align-items-center text-white gap-3 ms-auto">
@@ -92,41 +104,50 @@ const DebtTracker = () => {
                             <span className="fw-bold fs-5">₱{totalDebt.toLocaleString()}</span>
                         </div>
                         <div className="vr mx-2 opacity-50" style={{ height: '30px' }}></div>
-                        <button className="btn btn-sm btn-light rounded-pill px-3 fw-bold">Dark mode</button>
+                        <button
+                            className={`btn btn-sm ${darkMode ? 'btn-warning' : 'btn-light'} rounded-pill px-3 fw-bold`}
+                            onClick={() => setDarkMode(!darkMode)}
+                        >
+                            {darkMode ? '☀️ Light mode' : '🌙 Dark mode'}
+                        </button>
                     </div>
                 </div>
             </nav>
 
-            <div className="flex-grow-1 container-fluid px-4 py-4 overflow-hidden">
-                <div className="row g-4 h-100">
+            <div className="container-fluid px-0 mx-0 w-100">
+                <div className="row g-4 m-0 p-4">
                     {/* Record Form */}
-                    <div className="col-lg-3 h-100 overflow-auto">
-                        <div className="card shadow-sm border-0 h-100">
+                    <div className="col-lg-3">
+                        <div className={`card shadow-sm border-0 sticky-lg-top ${darkMode ? 'bg-secondary text-white shadow-lg' : 'bg-white'}`} style={{ top: '90px' }}>
                             <div className="card-body p-4">
-                                <h5 className="fw-bold mb-4 text-dark border-bottom pb-2">Record New Debt</h5>
+                                <h5 className={`fw-bold mb-4 border-bottom pb-2 ${darkMode ? 'border-dark text-light' : 'text-dark'}`}>Record New Debt</h5>
                                 <form onSubmit={handleSubmit}>
                                     <div className="mb-3">
-                                        <label className="form-label small fw-bold">Debtor Name</label>
-                                        <input name="debtorName" className="form-control form-control-sm shadow-none" placeholder="Who borrowed?" value={formData.debtorName} onChange={handleChange} required />
+                                        <label className={`form-label small fw-bold ${darkMode ? 'text-light' : 'text-dark'}`}>Debtor Name</label>
+                                        <input name="debtorName" className={`form-control form-control-sm shadow-none ${darkMode ? 'bg-dark text-white border-dark' : 'bg-white text-dark border-secondary-subtle'}`} placeholder="Who borrowed?" value={formData.debtorName} onChange={handleChange} required />
                                     </div>
                                     <div className="mb-3">
-                                        <label className="form-label small fw-semibold">Amount (PHP)</label>
-                                        <input name="amount" type="number" className="form-control form-control-sm shadow-none" placeholder="0.00" value={formData.amount} onChange={handleChange} required />
+                                        <label className={`form-label small fw-bold ${darkMode ? 'text-light' : 'text-dark'}`}>Amount (PHP)</label>
+                                        <input name="amount" type="number" className={`form-control form-control-sm shadow-none ${darkMode ? 'bg-dark text-white border-dark' : 'bg-white text-dark border-secondary-subtle'}`} placeholder="0.00" value={formData.amount} onChange={handleChange} required />
                                     </div>
                                     <div className="mb-3">
-                                        <label className="form-label small fw-semibold">Interest (%) <small className="text-muted">(Optional)</small></label>
-                                        <input name="interest" type="number" className="form-control form-control-sm shadow-none" placeholder="0" value={formData.interest} onChange={handleChange} />
+                                        <label className={`form-label small fw-bold ${darkMode ? 'text-light' : 'text-dark'}`}>Interest (%) <small className={darkMode ? 'text-white-50' : 'text-muted'} style={{ fontSize: '0.7rem' }}>(Optional)</small></label>
+                                        <input name="interest" type="number" className={`form-control form-control-sm shadow-none ${darkMode ? 'bg-dark text-white border-dark' : 'bg-white text-dark border-secondary-subtle'}`} placeholder="0" value={formData.interest} onChange={handleChange} />
                                     </div>
                                     <div className="mb-3">
-                                        <label className="form-label small fw-semibold">Date Borrowed</label>
-                                        <input name="debtDate" type="date" className="form-control form-control-sm shadow-none" max={today} value={formData.debtDate} onChange={handleChange} required />
+                                        <label className={`form-label small fw-bold ${darkMode ? 'text-light' : 'text-dark'}`}>Date Borrowed</label>
+                                        <input name="debtDate" type="date" className={`form-control form-control-sm shadow-none ${darkMode ? 'bg-dark text-white border-dark' : 'bg-white text-dark border-secondary-subtle'}`} max={today} value={formData.debtDate} onChange={handleChange} required />
                                     </div>
                                     <div className="mb-3">
-                                        <label className="form-label small fw-semibold">Due Date<small className="text-muted">(Optional)</small></label>
-                                        <input name="dueDate" type="date" className="form-control form-control-sm shadow-none" value={formData.dueDate} onChange={handleChange} />
+                                        <label className={`form-label small fw-bold ${darkMode ? 'text-light' : 'text-dark'}`}>Due Date <small className={darkMode ? 'text-white-50' : 'text-muted'} style={{ fontSize: '0.7rem' }}>(Optional)</small></label>
+                                        <input name="dueDate" type="date" className={`form-control form-control-sm shadow-none ${darkMode ? 'bg-dark border-dark' : 'bg-white border-secondary-subtle'
+                                            } ${!formData.dueDate
+                                                ? (darkMode ? 'text-white-50' : 'text-muted')
+                                                : (darkMode ? 'text-white' : 'text-dark')
+                                            }`} value={formData.dueDate} onChange={handleChange} />
                                     </div>
-                                    <button type="submit" className="btn btn-primary w-100 fw-bold py-2 shadow-sm text-white">
-                                        Add to Records
+                                    <button type="submit" className={`btn ${darkMode ? 'btn-info text-dark' : 'btn-primary'} w-100 fw-bold py-2 shadow-sm`}>
+                                        Add to Record
                                     </button>
                                 </form>
                             </div>
@@ -134,106 +155,105 @@ const DebtTracker = () => {
                     </div>
 
                     {/*Table Side*/}
-                    <div className="col-lg-9 h-100 overflow-auto">
-                        <div className="card shadow-sm border-0 h-100">
+                    <div className="col-lg-9">
+                        <div className={`card shadow-sm border-0 ${darkMode ? 'bg-secondary text-white' : 'bg-white'}`}>
                             <div className="card-body p-4">
                                 <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
-                                    <h5 className="fw-bold mb-0 text-dark">Active Debt List</h5>
-                                    <div className="input-group" style={{ maxWidth: '350px' }}></div>
-                                    <input type="text" className="form-control border-start-0 shadow-none ps-0" placeholder="Search debtor..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                                    <h5 className={`fw-bold mb-0 ${darkMode ? 'text-light' : 'text-dark'}`}>Active Debt List</h5>
+                                    <div className="input-group" style={{ maxWidth: '350px' }}>
+                                        <input type="text" className={`form-control shadow-none ${darkMode ? 'bg-dark text-white border-secondary' : ''}`} placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                                    </div>
                                 </div>
 
-                                <div className="table-responsive">
-                                    <table className="table table-hover align-middle">
-                                        <thead className="table-light border-bottom">
-                                            <tr className="small text-muted">
-                                                <th>Name & Status</th>
-                                                <th>Base Amount</th>
-                                                <th>Interest (%)</th>
-                                                <th>Date Borrowed</th>
-                                                <th>Due Date</th>
-                                                <th className="text-primary">Total Amount</th>
-                                                <th className="text-end">Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {filteredDebts.length > 0 ? (
-                                                filteredDebts.map((debt) => {
-                                                    const baseAmount = parseFloat(debt.amount || 0);
-                                                    const interestVal = parseFloat(debt.interest || 0);
-                                                    const totalWithInterest = baseAmount + (baseAmount * (interestVal / 100));
-                                                    const remainingBalance = totalWithInterest - (debt.amountPaid || 0);
-                                                    return (
-                                                        <tr key={debt._id}>
-                                                            <td>
-                                                                <div className="fw-bold text-dark">{debt.debtorName}</div>
-                                                                <select
-                                                                    className={`form-select form-select-sm border-0 fw-bold badge ${debt.status === 'Overdue' ? 'bg-danger' :
-                                                                        debt.status === 'Fully Paid' ? 'bg-success text-white' :
-                                                                            debt.status === 'Partially Paid' ? 'bg-warning text-dark' : 'bg-secondary text-white'
-                                                                        }`}
-                                                                    style={{ width: 'fit-content', cursor: 'pointer', appearance: 'none', textAlign: 'center' }}
-                                                                    value={debt.status}
-                                                                    onChange={(e) => handleStatusChange(debt._id, e.target.value, debt.amountPaid)}
-                                                                >
-                                                                    <option value="Pending">Pending </option>
-                                                                    <option value="Partially Paid">Partially Paid </option>
-                                                                    <option value="Fully Paid">Fully Paid </option>
-                                                                    <option value="Overdue">Overdue </option>
-                                                                </select>
-                                                                {debt.status === 'Partially Paid' && (
-                                                                    <div className="mt-2 d-flex gap-1">
-                                                                        <input
-                                                                            type="number"
-                                                                            className="form-control form-control-sm"
-                                                                            placeholder="Amt Paid"
-                                                                            style={{ width: '80px' }}
-                                                                            value={partialInput[debt._id] || ''}
-                                                                            onChange={(e) => setPartialInput({ ...partialInput, [debt._id]: e.target.value })}
-                                                                        />
-                                                                        <button
-                                                                            className="btn btn-sm btn-success"
-                                                                            onClick={() => handleStatusChange(debt._id, 'Partially Paid', partialInput[debt._id])}
-                                                                        >
-                                                                            ✓
-                                                                        </button>
-                                                                    </div>
-                                                                )}
-                                                            </td>
-                                                            <td className="fw-semibold">₱{baseAmount.toLocaleString()}</td>
-                                                            <td className="text-muted">{interestVal}%</td>
-                                                            <td className="small text-muted">{debt.dueDate}</td>
-                                                            <td className="small text-muted">{debt.dueDate || 'No Due Date'}</td>
-                                                            <td className="fw-bold text-primary">
-                                                                {debt.status === 'Fully Paid' ? (
-                                                                    <span className="text-muted text-decoration-line-through">
-                                                                        ₱{totalWithInterest.toLocaleString()}
-                                                                    </span>
-                                                                ) : (
-                                                                    <>
-                                                                        <div>₱{remainingBalance.toLocaleString()}</div>
-                                                                        {debt.amountPaid > 0 && (
-                                                                            <small className="text-success d-block" style={{ fontSize: '0.7rem' }}>
-                                                                                Paid: ₱{debt.amountPaid}
-                                                                            </small>
-                                                                        )}
-                                                                    </>
-                                                                )}
-                                                            </td>
-                                                            <td className="text-end px-3">
-                                                                <button className="btn btn-sm btn-outline-danger border-0" onClick={() => handleDelete(debt._id)}>
-                                                                    Delete
-                                                                </button>
-                                                            </td>
-                                                        </tr>
-                                                    );
-                                                })
-                                            ) : (
-                                                <tr><td colSpan="7" className="text-center py-5 text-muted">No debt records found.</td></tr>
-                                            )}
-                                        </tbody>
-                                    </table>
-                                </div>
+                                <table className={`table table-hover align-middle ${darkMode ? 'table-dark' : ''}`}>
+                                    <thead className={darkMode ? 'table-dark' : 'table-light border-bottom'}>
+                                        <tr className="small">
+                                            <th className="text-end">Name & Status</th>
+                                            <th className="text-end">Base Amount</th>
+                                            <th className="text-end">Interest</th>
+                                            <th className="text-end">Date Borrowed</th>
+                                            <th className="text-end">Due Date</th>
+                                            <th className="text-primary">Total Amount</th>
+                                            <th className="text-end">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {filteredDebts.length > 0 ? (
+                                            filteredDebts.map((debt) => {
+                                                const baseAmount = parseFloat(debt.amount || 0);
+                                                const interestVal = parseFloat(debt.interest || 0);
+                                                const totalWithInterest = baseAmount + (baseAmount * (interestVal / 100));
+                                                const remainingBalance = totalWithInterest - (debt.amountPaid || 0);
+                                                return (
+                                                    <tr key={debt._id} className={darkMode ? 'border-secondary' : ''}>
+                                                        <td>
+                                                            <div className={`fw-bold ${darkMode ? 'text-light' : 'text-dark'}`}>{debt.debtorName}</div>
+                                                            <select
+                                                                className={`form-select form-select-sm border-0 fw-bold badge ${debt.status === 'Overdue' ? 'bg-danger' :
+                                                                    debt.status === 'Fully Paid' ? 'bg-success text-white' :
+                                                                        debt.status === 'Partially Paid' ? 'bg-warning text-dark' : 'bg-secondary text-white'
+                                                                    }`}
+                                                                style={{ width: 'fit-content', cursor: 'pointer', appearance: 'none', textAlign: 'center' }}
+                                                                value={debt.status}
+                                                                onChange={(e) => handleStatusChange(debt._id, e.target.value, debt.amountPaid)}
+                                                            >
+                                                                <option value="Pending">Pending </option>
+                                                                <option value="Partially Paid">Partially Paid </option>
+                                                                <option value="Fully Paid">Fully Paid </option>
+                                                                <option value="Overdue">Overdue </option>
+                                                            </select>
+                                                            {debt.status === 'Partially Paid' && (
+                                                                <div className="mt-2 d-flex gap-1">
+                                                                    <input
+                                                                        type="number"
+                                                                        className="form-control form-control-sm"
+                                                                        placeholder="Amt Paid"
+                                                                        style={{ width: '80px' }}
+                                                                        value={partialInput[debt._id] || ''}
+                                                                        onChange={(e) => setPartialInput({ ...partialInput, [debt._id]: e.target.value })}
+                                                                    />
+                                                                    <button
+                                                                        className="btn btn-sm btn-success"
+                                                                        onClick={() => handleStatusChange(debt._id, 'Partially Paid', partialInput[debt._id])}
+                                                                    >
+                                                                        ✓
+                                                                    </button>
+                                                                </div>
+                                                            )}
+                                                        </td>
+                                                        <td className="fw-semibold">₱{baseAmount.toLocaleString()}</td>
+                                                        <td className="text">{interestVal}%</td>
+                                                        <td className="small text">{debt.dueDate}</td>
+                                                        <td className="small text">{debt.dueDate || 'No Due Date'}</td>
+                                                        <td className="fw-bold text-primary">
+                                                            {debt.status === 'Fully Paid' ? (
+                                                                <span className="text text-decoration-line-through">
+                                                                    ₱{totalWithInterest.toLocaleString()}
+                                                                </span>
+                                                            ) : (
+                                                                <>
+                                                                    <div>₱{remainingBalance.toLocaleString()}</div>
+                                                                    {debt.amountPaid > 0 && (
+                                                                        <small className="text-success d-block" style={{ fontSize: '0.7rem' }}>
+                                                                            Paid: ₱{debt.amountPaid}
+                                                                        </small>
+                                                                    )}
+                                                                </>
+                                                            )}
+                                                        </td>
+                                                        <td className="text-end px-3">
+                                                            <button className="btn btn-sm btn-outline-danger border-0" onClick={() => handleDelete(debt._id)}>
+                                                                Delete
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })
+                                        ) : (
+                                            <tr><td colSpan="7" className={`text-center py-5 ${darkMode ? 'text-white-50 opacity-50' : 'text-muted'}`}>No debt records found.</td></tr>
+                                        )}
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
