@@ -126,32 +126,46 @@ const DebtTracker = () => {
                                         <thead className="table-light">
                                             <tr>
                                                 <th>Debtor & Status</th>
-                                                <th>Amount</th>
+                                                <th>Base Amount (PHP) </th>
+                                                <th>Interest (%)</th>
+                                                <th>Date Borrowed</th>
                                                 <th>Due Date</th>
+                                                <th className="text-primary">Total Amount</th>
                                                 <th className="text-end">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {debts.length > 0 ? (
-                                                debts.map((debt, i) => (
-                                                    <tr key={debt._id}>
-                                                        <td>
-                                                            <div className="fw-bold text-dark">{debt.debtorName}</div>
-                                                            <span className={`badge ${debt.status === 'Overdue' ? 'bg-danger' : 'bg-secondary'}`}>
-                                                                {debt.status}
-                                                            </span>
-                                                        </td>
-                                                        <td className="fw-bold text-primary">
-                                                            ₱{parseFloat(debt.amount).toLocaleString()}
-                                                        </td>
-                                                        <td className="text-muted font-monospace">{debt.dueDate}</td>
-                                                        <td className="text-end">
-                                                            <button className="btn btn-sm btn-outline-danger border-0" onClick={() => handleDelete(debt._id)}>
-                                                                Delete
-                                                            </button>
-                                                        </td>
-                                                    </tr>
-                                                ))
+                                                debts.map((debt) => {
+                                                    const baseAmount = parseFloat(debt.amount || 0);
+                                                    const interestVal = parseFloat(debt.interest || 0);
+                                                    const totalWithInterest = baseAmount + (baseAmount * (interestVal / 100));
+                                                    return (
+                                                        <tr key={debt._id}>
+                                                            <td>
+                                                                <div className="fw-bold text-dark">{debt.debtorName}</div>
+                                                                <span className={`badge border-0 ${debt.status === 'Fully Paid' ? 'bg-success' :
+                                                                    debt.status === 'Partially Paid' ? 'bg-warning text-dark' : 'bg-secondary'
+                                                                    }`}
+                                                                    style={{ cursor: 'pointer' }}
+                                                                    onClick={() => handleStatusToggle(debt._id, debt.status)}
+                                                                >
+                                                                    {debt.status}
+                                                                </span>
+                                                            </td>
+                                                            <td className="fw-semibold">₱{baseAmount.toLocaleString()}</td>
+                                                            <td className="text-muted">{interestVal}%</td>
+                                                            <td className="text-muted">{debt.dueDate}</td>
+                                                            <td className="text-muted">{debt.dueDate || 'No Due Date'}</td>
+                                                            <td className="fw-bold text-primary">₱{totalWithInterest.toLocaleString()}</td>
+                                                            <td className="text-end">
+                                                                <button className="btn btn-sm btn-outline-danger border-0" onClick={() => handleDelete(debt._id)}>
+                                                                    Delete
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                })
                                             ) : (
                                                 <tr><td colSpan="4" className="text-center">No debt records found.</td></tr>
                                             )}
