@@ -83,45 +83,47 @@ const DebtTracker = () => {
     return (
         <div className="min-vh-100 bg-light">
             {/* Navbar with Total Display */}
-            <nav className="navbar navbar-light bg-white border-bottom mb-4 shadow-sm">
-                <div className="container d-flex justify-content-between align-items-center">
-                    <span className="navbar-brand mb-0 h1 fw-bold text-primary">DEBT TRACKER</span>
-                    <div className="text-end">
-                        <small className="text-muted d-block">Total</small>
-                        <span className="text-primary fw-bold fs-4">
-                            ₱{totalDebt.toLocaleString()}
-                        </span>
+            <nav className="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm sticky-top">
+                <div className="container-fluid px-4">
+                    <span className="navbar-brand fw-bold fs-4">DEBT TRACKER</span>
+                    <div className="d-flex align-items-center text-white gap-3 ms-auto">
+                        <div className="text-end">
+                            <small className="d-block opacity-75" style={{ fontSize: '0.7rem' }}>Total</small>
+                            <span className="fw-bold fs-5">₱{totalDebt.toLocaleString()}</span>
+                        </div>
+                        <div className="vr mx-2 opacity-50" style={{ height: '30px' }}></div>
+                        <button className="btn btn-sm btn-light rounded-pill px-3 fw-bold">Dark mode</button>
                     </div>
                 </div>
             </nav>
 
-            <div className="container">
+            <div className="container-fluid py-4 px-md-5">
                 <div className="row g-4">
                     {/* Record Form */}
-                    <div className="col-md-4">
-                        <div className="card shadow-sm border-0">
+                    <div className="col-lg-3">
+                        <div className="card shadow-sm border-0 sticky-lg-top" style={{ top: '90px' }}>
                             <div className="card-body p-4">
-                                <h5 className="card-title mb-4 fw-bold text-dark">Record New Debt</h5>
+                                <h5 className="fw-bold mb-4 text-dark border-bottom pb-2">Record New Debt</h5>
                                 <form onSubmit={handleSubmit}>
                                     <div className="mb-3">
-                                        <label className="form-label fw-semibold">Debtor Name</label>
-                                        <input name="debtorName" className="form-control" placeholder="Who borrowed?" value={formData.debtorName} onChange={handleChange} required />
+                                        <label className="form-label small fw-bold text-muted">Debtor Name</label>
+                                        <input name="debtorName" className="form-control form-control-sm shadow-none" placeholder="Who borrowed?" value={formData.debtorName} onChange={handleChange} required />
                                     </div>
                                     <div className="mb-3">
-                                        <label className="form-label fw-semibold">Amount (PHP)</label>
-                                        <input name="amount" type="number" className="form-control" placeholder="0.00" value={formData.amount} onChange={handleChange} required />
+                                        <label className="form-label small fw-semibold">Amount (PHP)</label>
+                                        <input name="amount" type="number" className="form-control form-control-sm shadow-none" placeholder="0.00" value={formData.amount} onChange={handleChange} required />
                                     </div>
                                     <div className="mb-3">
-                                        <label className="form-label fw-semibold">Interest (%) <small className="text-muted">(Optional)</small></label>
-                                        <input name="interest" type="number" className="form-control" placeholder="0" value={formData.interest} onChange={handleChange} />
+                                        <label className="form-label small fw-semibold">Interest (%) <small className="text-muted">(Optional)</small></label>
+                                        <input name="interest" type="number" className="form-control form-control-sm shadow-none" placeholder="0" value={formData.interest} onChange={handleChange} />
                                     </div>
                                     <div className="mb-3">
-                                        <label className="form-label fw-semibold">Date Borrowed</label>
-                                        <input name="debtDate" type="date" className="form-control" max={today} value={formData.debtDate} onChange={handleChange} required />
+                                        <label className="form-label small fw-semibold">Date Borrowed</label>
+                                        <input name="debtDate" type="date" className="form-control form-control-sm shadow-none" max={today} value={formData.debtDate} onChange={handleChange} required />
                                     </div>
                                     <div className="mb-3">
-                                        <label className="form-label fw-semibold">Due Date<small className="text-muted">(Optional)</small></label>
-                                        <input name="dueDate" type="date" className="form-control" value={formData.dueDate} onChange={handleChange} />
+                                        <label className="form-label small fw-semibold">Due Date<small className="text-muted">(Optional)</small></label>
+                                        <input name="dueDate" type="date" className="form-control form-control-sm shadow-none" value={formData.dueDate} onChange={handleChange} />
                                     </div>
                                     <button type="submit" className="btn btn-primary w-100 fw-bold py-2 shadow-sm text-white">
                                         Add to Records
@@ -132,26 +134,20 @@ const DebtTracker = () => {
                     </div>
 
                     {/*Table Side*/}
-                    <div className="col-md-8">
+                    <div className="col-lg-9">
                         <div className="card shadow-sm border-0">
                             <div className="card-body p-4">
-                                <h5 className="card-title mb-4 fw-bold text-dark">Collection History</h5>
-
-                                <div className="mb-3">
-                                    <input
-                                        type="text"
-                                        className="form-control shadow-sm"
-                                        placeholder="Search..."
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                    />
+                                <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+                                    <h5 className="fw-bold mb-0 text-dark">Active Debt List</h5>
+                                    <div className="input-group" style={{ maxWidth: '350px' }}></div>
+                                    <input type="text" className="form-control border-start-0 shadow-none ps-0" placeholder="Search debtor..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
                                 </div>
 
                                 <div className="table-responsive">
-                                    <table className="table table-hover align-middle border-top">
-                                        <thead className="table-light">
-                                            <tr>
-                                                <th>Debtor & Status</th>
+                                    <table className="table table-hover align-middle">
+                                        <thead className="table-light border-bottom">
+                                            <tr className="small text-muted">
+                                                <th>Name & Status</th>
                                                 <th>Base Amount</th>
                                                 <th>Interest (%)</th>
                                                 <th>Date Borrowed</th>
@@ -186,7 +182,7 @@ const DebtTracker = () => {
                                                                     <option value="Overdue">Overdue </option>
                                                                 </select>
                                                                 {debt.status === 'Partially Paid' && (
-                                                                    <div className="mt-2 d-flex gap-1 animate__animated animate__fadeIn">
+                                                                    <div className="mt-2 d-flex gap-1">
                                                                         <input
                                                                             type="number"
                                                                             className="form-control form-control-sm"
@@ -206,8 +202,8 @@ const DebtTracker = () => {
                                                             </td>
                                                             <td className="fw-semibold">₱{baseAmount.toLocaleString()}</td>
                                                             <td className="text-muted">{interestVal}%</td>
-                                                            <td className="text-muted">{debt.dueDate}</td>
-                                                            <td className="text-muted">{debt.dueDate || 'No Due Date'}</td>
+                                                            <td className="small text-muted">{debt.dueDate}</td>
+                                                            <td className="small text-muted">{debt.dueDate || 'No Due Date'}</td>
                                                             <td className="fw-bold text-primary">
                                                                 {debt.status === 'Fully Paid' ? (
                                                                     <span className="text-muted text-decoration-line-through">
@@ -217,14 +213,14 @@ const DebtTracker = () => {
                                                                     <>
                                                                         <div>₱{remainingBalance.toLocaleString()}</div>
                                                                         {debt.amountPaid > 0 && (
-                                                                            <small className="text-success d-block" style={{ fontSize: '0.7rem', fontWeight: 'normal' }}>
+                                                                            <small className="text-success d-block" style={{ fontSize: '0.7rem' }}>
                                                                                 Paid: ₱{debt.amountPaid}
                                                                             </small>
                                                                         )}
                                                                     </>
                                                                 )}
                                                             </td>
-                                                            <td className="text-end">
+                                                            <td className="text-end px-3">
                                                                 <button className="btn btn-sm btn-outline-danger border-0" onClick={() => handleDelete(debt._id)}>
                                                                     Delete
                                                                 </button>
@@ -233,7 +229,7 @@ const DebtTracker = () => {
                                                     );
                                                 })
                                             ) : (
-                                                <tr><td colSpan="7" className="text-center">No debt records found.</td></tr>
+                                                <tr><td colSpan="7" className="text-center py-5 text-muted">No debt records found.</td></tr>
                                             )}
                                         </tbody>
                                     </table>
