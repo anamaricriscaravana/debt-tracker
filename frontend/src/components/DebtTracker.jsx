@@ -282,24 +282,39 @@ const DebtTracker = () => {
                                                     <tr key={debt._id} className={darkMode ? 'border-secondary' : ''}>
                                                         <td>
                                                             <div className={`fw-bold ${darkMode ? 'text-light' : 'text-dark'}`}>{debt.debtorName}</div>
-                                                            <select
-                                                                className={`form-select form-select-sm border-0 fw-bold badge ${displayStatus === 'Overdue' ? 'bg-danger' :
-                                                                    displayStatus === 'Fully Paid' ? 'bg-success text-white' :
-                                                                        displayStatus === 'Partially Paid' ? 'bg-warning text-dark' : 'bg-secondary text-white'
-                                                                    }`}
-                                                                style={{ width: 'fit-content', cursor: 'pointer', appearance: 'none', textAlign: 'center' }}
-                                                                value={displayStatus}
-                                                                disabled={debt.status === 'Fully Paid'}
-                                                                onChange={(e) => handleStatusChange(debt._id, e.target.value, debt.amountPaid)}
+                                                            <div
+                                                                onClick={() => {
+                                                                    if (debt.status === 'Partially Paid') {
+                                                                        setIsEditing(debt._id);
+                                                                    }
+                                                                }}
+                                                                style={{ cursor: debt.status === 'Fully Paid' ? 'not-allowed' : 'pointer', width: 'fit-content' }}
                                                             >
-                                                                {!(debt.status === 'Partially Paid' || displayStatus === 'Overdue' || debt.amountPaid > 0) && (
-                                                                    <option value="Pending">Pending</option>
-                                                                )}
-                                                                <option value="Partially Paid">Partially Paid </option>
-                                                                <option value="Fully Paid">Fully Paid </option>
-                                                                <option value="Overdue">Overdue </option>
-                                                            </select>
-                                                            {(debt.status === 'Partially Paid' || isEditing === debt._id) && (
+                                                                <select
+                                                                    className={`form-select form-select-sm border-0 fw-bold badge ${displayStatus === 'Overdue' ? 'bg-danger' :
+                                                                        debt.status === 'Fully Paid' ? 'bg-success text-white' :
+                                                                            debt.status === 'Partially Paid' ? 'bg-warning text-dark' : 'bg-secondary text-white'
+                                                                        }`}
+                                                                    style={{
+                                                                        width: 'fit-content',
+                                                                        appearance: 'none',
+                                                                        textAlign: 'center',
+                                                                        pointerEvents: debt.status === 'Partially Paid' ? 'none' : 'auto'
+                                                                    }}
+                                                                    value={displayStatus}
+                                                                    disabled={debt.status === 'Fully Paid'}
+                                                                    onChange={(e) => handleStatusChange(debt._id, e.target.value, debt.amountPaid)}
+                                                                >
+                                                                    {!(debt.status === 'Partially Paid' || displayStatus === 'Overdue' || debt.amountPaid > 0) && (
+                                                                        <option value="Pending">Pending</option>
+                                                                    )}
+                                                                    <option value="Partially Paid">Partially Paid</option>
+                                                                    <option value="Fully Paid">Fully Paid</option>
+                                                                    <option value="Overdue">Overdue</option>
+                                                                </select>
+                                                            </div>
+
+                                                            {(isEditing === debt._id) && (
                                                                 <div className="mt-2 d-flex gap-1 animate__animated animate__fadeIn">
                                                                     <input
                                                                         type="number"
@@ -313,11 +328,11 @@ const DebtTracker = () => {
                                                                             setTimeout(() => {
                                                                                 if (!partialInput[debt._id]) {
                                                                                     setIsEditing(null);
-                                                                                    fetchDebts();
                                                                                 }
-                                                                            }, 200);;
+                                                                            }, 250);
                                                                         }}
                                                                     />
+                                                                    
                                                                     <button
                                                                         className="btn btn-sm btn-success"
                                                                         onClick={async () => {
@@ -328,7 +343,6 @@ const DebtTracker = () => {
                                                                             let newTotalPaid = previousPaid + inputVal;
 
                                                                             let statusToSave = 'Partially Paid';
-
                                                                             if (newTotalPaid >= totalWithInterest) {
                                                                                 statusToSave = 'Fully Paid';
                                                                                 newTotalPaid = totalWithInterest;
@@ -336,8 +350,8 @@ const DebtTracker = () => {
 
                                                                             try {
                                                                                 await axios.patch(`http://localhost:5000/api/debts/${debt._id}/status`, { status: statusToSave, amountPaid: newTotalPaid });
-                                                                                setPartialInput({ ...partialInput, [debt._id]: '' });
                                                                                 setIsEditing(null);
+                                                                                setPartialInput({ ...partialInput, [debt._id]: '' });
                                                                                 fetchDebts();
                                                                             } catch (error) {
                                                                                 alert("Update failed");
