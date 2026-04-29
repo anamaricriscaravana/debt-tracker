@@ -122,7 +122,7 @@ const DebtTracker = () => {
         }
     });
 
-    const totalDebt = debts.reduce((acc, curr) => {
+    const totalDebt = displayDebts.reduce((acc, curr) => {
         if (curr.status === 'Fully Paid') return acc;
         const totalWithInterest = calculateTotalWithSmartInterest(curr);
         const balance = totalWithInterest - (curr.amountPaid || 0);
