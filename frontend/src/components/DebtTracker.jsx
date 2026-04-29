@@ -304,7 +304,7 @@ const DebtTracker = () => {
                                     <table className={`table table-hover align-middle ${darkMode ? 'table-dark' : ''}`}>
                                         <thead className={darkMode ? 'table-dark' : 'table-light border-bottom'}>
                                             <tr className="small">
-                                                <th onClick={() => requestSort('debtorName')} style={{ cursor: 'pointer', minWidth: '180px' }} className="text-start px-3">
+                                                <th onClick={() => requestSort('debtorName')} style={{ cursor: 'pointer', minWidth: '180px' }} className="text-center px-3">
                                                     Name & Status <span className="opacity-50">{sortConfig.key === 'debtorName' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}</span>
                                                 </th>
                                                 <th onClick={() => requestSort('amount')} style={{ cursor: 'pointer' }} className="text-center px-2">
@@ -337,25 +337,27 @@ const DebtTracker = () => {
 
                                                     return (
                                                         <tr key={debt._id} className={darkMode ? 'border-secondary' : ''}>
-                                                            <td>
+                                                            <td className="text-center">
                                                                 <div className={`fw-bold ${darkMode ? 'text-light' : 'text-dark'}`}>{debt.debtorName}</div>
-                                                                <div onClick={() => debt.status === 'Partially Paid' && setIsEditing(debt._id)} style={{ cursor: 'pointer', width: 'fit-content' }}>
-                                                                    <select
-                                                                        className={`form-select form-select-sm border-0 fw-bold badge ${displayStatus === 'Overdue' ? 'bg-danger' : debt.status === 'Fully Paid' ? 'bg-success' : debt.status === 'Partially Paid' ? 'bg-warning text-dark' : 'bg-secondary text-white'}`}
-                                                                        style={{ width: 'fit-content', appearance: 'none', textAlign: 'center', backgroundColor: 'inherit', color: 'inherit' }}
-                                                                        value={displayStatus}
-                                                                        disabled={debt.status === 'Fully Paid'}
-                                                                        onChange={(e) => handleStatusChange(debt._id, e.target.value, debt.amountPaid)}
-                                                                    >
-                                                                        <option value="Pending" className={darkMode ? 'bg-dark text-white' : 'bg-white text-dark'}>Pending</option>
-                                                                        <option value="Partially Paid" className={darkMode ? 'bg-dark text-white' : 'bg-white text-dark'}>Partially Paid</option>
-                                                                        <option value="Fully Paid" className={darkMode ? 'bg-dark text-white' : 'bg-white text-dark'}>Fully Paid</option>
-                                                                        <option value="Overdue" className={darkMode ? 'bg-dark text-white' : 'bg-white text-dark'}>Overdue</option>
-                                                                    </select>
+                                                                <div className="d-flex justify-content-center mt-1">
+                                                                    <div onClick={() => debt.status === 'Partially Paid' && setIsEditing(debt._id)} style={{ cursor: 'pointer', width: 'fit-content' }}>
+                                                                        <select
+                                                                            className={`form-select form-select-sm border-0 fw-bold badge ${displayStatus === 'Overdue' ? 'bg-danger' : debt.status === 'Fully Paid' ? 'bg-success' : debt.status === 'Partially Paid' ? 'bg-warning text-dark' : 'bg-secondary text-white'}`}
+                                                                            style={{ width: 'fit-content', appearance: 'none', textAlign: 'center', backgroundColor: 'inherit', color: 'inherit' }}
+                                                                            value={displayStatus}
+                                                                            disabled={debt.status === 'Fully Paid'}
+                                                                            onChange={(e) => handleStatusChange(debt._id, e.target.value, debt.amountPaid)}
+                                                                        >
+                                                                            <option value="Pending" className={darkMode ? 'bg-dark text-white' : 'bg-white text-dark'}>Pending</option>
+                                                                            <option value="Partially Paid" className={darkMode ? 'bg-dark text-white' : 'bg-white text-dark'}>Partially Paid</option>
+                                                                            <option value="Fully Paid" className={darkMode ? 'bg-dark text-white' : 'bg-white text-dark'}>Fully Paid</option>
+                                                                            <option value="Overdue" className={darkMode ? 'bg-dark text-white' : 'bg-white text-dark'}>Overdue</option>
+                                                                        </select>
+                                                                    </div>
                                                                 </div>
                                                                 {isEditing === debt._id && (
-                                                                    <div className="mt-2 d-flex gap-1 animate__animated animate__fadeIn">
-                                                                        <input type="number" className={`form-control form-control-sm ${darkMode ? 'bg-dark text-white border-secondary' : ''}`} style={{ width: '80px' }} placeholder="Amt" autoFocus value={partialInput[debt._id] || ''} onChange={(e) => setPartialInput({ ...partialInput, [debt._id]: e.target.value })} />
+                                                                    <div className="mt-2 d-flex gap-1  justify-content-center animate__animated animate__fadeIn">
+                                                                        <input type="number" className={`form-control form-control-sm ${darkMode ? 'bg-dark text-white border-secondary' : ''}`} style={{ width: '80px' }} placeholder="Amount" autoFocus value={partialInput[debt._id] || ''} onChange={(e) => setPartialInput({ ...partialInput, [debt._id]: e.target.value })} />
                                                                         <button className="btn btn-sm btn-success" onClick={async () => {
                                                                             const inputVal = parseFloat(partialInput[debt._id] || 0);
                                                                             if (inputVal <= 0) return alert("Enter valid amount");
