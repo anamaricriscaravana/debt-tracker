@@ -45,10 +45,6 @@ const DebtTracker = () => {
         fetchDebts();
     }, []);
 
-    const filteredDebts = debts.filter(debt =>
-        debt.debtorName.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
     const calculateTotalWithSmartInterest = (debt) => {
         const baseAmount = parseFloat(debt.amount || 0);
         const interestVal = parseFloat(debt.interest || 0);
@@ -62,6 +58,29 @@ const DebtTracker = () => {
         const appliedInterest = shouldApplyInterest ? (baseAmount * (interestVal / 100)) : 0;
         return baseAmount + appliedInterest;
     };
+
+    const filteredDebts = debts.filter(debt => {
+        const search = searchTerm.toLowerCase();
+
+        const totalWithInterest = calculateTotalWithSmartInterest(debt);
+        const remainingBalance = totalWithInterest - (debt.amountPaid || 0);
+
+        const debtorName = (debt.debtorName || "").toLowerCase();
+        const status = (debt.status || "").toLowerCase();
+        const dueDate = (debt.dueDate || "").toLowerCase();
+        const debtDate = (debt.debtDate || "").toLowerCase();
+
+        return (
+            debtorName.includes(search) ||
+            status.includes(search) ||
+            dueDate.includes(search) ||
+            debtDate.includes(search) ||
+            debt.amount.toString().includes(search) ||
+            (debt.interest && debt.interest.toString().includes(search)) ||
+            totalWithInterest.toString().includes(search) ||
+            remainingBalance.toString().includes(search)
+        );
+    });
 
     const requestSort = (key) => {
         let direction = 'asc';
