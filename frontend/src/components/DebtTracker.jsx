@@ -309,7 +309,7 @@ const DebtTracker = () => {
                                             <th className="text-center">Total Amount</th>
                                             {/* Extra Column for Method for History View */}
                                             {view === 'history' && <th className="text-center">Method</th>}
-                                            <th className="text-center">Action</th>
+                                            <th className="text-center" style={{ width: '70px' }}>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -438,11 +438,11 @@ const DebtTracker = () => {
 
                                                         <td className="text-center px-3">
                                                             <button
-                                                                className="btn btn-sm btn-outline-danger border-0"
+                                                                className="btn btn-sm btn-outline-danger border-0 p-1"
                                                                 onClick={() => handleDelete(debt._id)}
                                                                 title="Delete Record"
                                                             >
-                                                                <i className="bi bi-trash3-fill"></i>
+                                                                <i className="bi bi-trash3-fill" style={{ fontSize: '1.1rem' }}></i>
                                                             </button>
                                                         </td>
                                                     </tr>
