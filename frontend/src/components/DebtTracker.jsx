@@ -148,7 +148,7 @@ const DebtTracker = () => {
         }
 
         let finalAmountPaid = currentPaid;
-        
+
         if (newStatus === 'Fully Paid') {
             finalAmountPaid = totalWithInterest;
         } else if (newStatus === 'Pending') {
@@ -348,11 +348,18 @@ const DebtTracker = () => {
                                                                         onClick={async () => {
                                                                             const inputVal = parseFloat(partialInput[debt._id] || 0);
                                                                             if (inputVal <= 0) return alert("Enter valid amount");
+
                                                                             const totalWithInterest = calculateTotalWithSmartInterest(debt);
                                                                             const previousPaid = parseFloat(debt.amountPaid || 0);
-                                                                            let newTotalPaid = previousPaid + inputVal;
+                                                                            const remainingToPay = totalWithInterest - previousPaid;
 
+                                                                            if (inputVal > remainingToPay) {
+                                                                                return alert(`Payment exceeds balance! Only ₱${remainingToPay.toLocaleString()} remaining.`);
+                                                                            }
+
+                                                                            let newTotalPaid = previousPaid + inputVal;
                                                                             let statusToSave = 'Partially Paid';
+
                                                                             if (newTotalPaid >= totalWithInterest) {
                                                                                 statusToSave = 'Fully Paid';
                                                                                 newTotalPaid = totalWithInterest;
