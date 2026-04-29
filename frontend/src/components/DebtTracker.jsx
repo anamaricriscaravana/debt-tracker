@@ -176,6 +176,11 @@ const DebtTracker = () => {
         const debt = debts.find(d => d._id === id);
         if (!debt) return;
 
+        if (newStatus === 'Partially Paid') {
+            setIsEditing(id);
+            return;
+        }
+
         const totalWithInterest = calculateTotalWithSmartInterest(debt);
 
         let updateData = {
@@ -308,25 +313,25 @@ const DebtTracker = () => {
                                                     {sortConfig.key === 'debtorName' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}
                                                 </span>
                                             </th>
-                                            <th onClick={() => requestSort('amount')} style={{ cursor: 'pointer',transition: 'all 0.2s' }} className="text-center">Base Amount<span className="ms-1 opacity-50">
-                                                    {sortConfig.key === 'amount' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}
-                                                </span></th>
-                                            <th onClick={() => requestSort('interest')} style={{ cursor: 'pointer',transition: 'all 0.2s' }} className="text-center">Interest <span className="ms-1 opacity-50">
-                                                    {sortConfig.key === 'interest' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}
-                                                </span>
-                                                </th>
+                                            <th onClick={() => requestSort('amount')} style={{ cursor: 'pointer', transition: 'all 0.2s' }} className="text-center">Base Amount<span className="ms-1 opacity-50">
+                                                {sortConfig.key === 'amount' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}
+                                            </span></th>
+                                            <th onClick={() => requestSort('interest')} style={{ cursor: 'pointer', transition: 'all 0.2s' }} className="text-center">Interest <span className="ms-1 opacity-50">
+                                                {sortConfig.key === 'interest' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}
+                                            </span>
+                                            </th>
                                             <th onClick={() => requestSort('debtDate')} style={{ cursor: 'pointer', transition: 'all 0.2s' }} className="text-center">Date Borrowed <span className="ms-1 opacity-50">
-                                                    {sortConfig.key === 'debtDate' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}
-                                                </span>
-                                                </th>
+                                                {sortConfig.key === 'debtDate' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}
+                                            </span>
+                                            </th>
                                             {/* Dynamic Column: Due Date for Active, Date Settled for History */}
                                             <th onClick={() => requestSort('debtDate')} style={{ cursor: 'pointer', transition: 'all 0.2s' }} className="text-center">{view === 'active' ? 'Due Date' : 'Date Settled'}<span className="ms-1 opacity-50">
-                                                    {sortConfig.key === 'debtDate' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}
-                                                </span>
-                                                </th>
+                                                {sortConfig.key === 'debtDate' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}
+                                            </span>
+                                            </th>
                                             <th onClick={() => requestSort('totalAmount')} style={{ cursor: 'pointer', transition: 'all 0.2s' }} className="text-center">Total Amount<span className="ms-1 opacity-50">
                                                 {sortConfig.key === 'totalAmount' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}
-                                                </span></th>
+                                            </span></th>
                                             {/* Extra Column for Method for History View */}
                                             {view === 'history' && <th className="text-center">Method</th>}
                                             <th className="text-center" style={{ width: '70px' }}>Action</th>
@@ -374,27 +379,30 @@ const DebtTracker = () => {
                                                                 </select>
                                                             </div>
 
-                                                            {(isEditing === debt._id) && (
-                                                                <div className="mt-2 d-flex gap-1 animate__animated animate__fadeIn">
+                                                            {isEditing === debt._id && (
+                                                                <div className="mt-2 d-flex gap-1 justify-content-center animate__animated animate__fadeIn">
                                                                     <input
                                                                         type="number"
                                                                         className={`form-control form-control-sm ${darkMode ? 'bg-dark text-white border-secondary' : ''}`}
                                                                         style={{ width: '80px' }}
-                                                                        value={partialInput[debt._id] || ''}
+                                                                        placeholder="Amt Paid"
                                                                         autoFocus
+                                                                        value={partialInput[debt._id] || ''}
                                                                         onChange={(e) => setPartialInput({ ...partialInput, [debt._id]: e.target.value })}
-                                                                        onBlur={() => setTimeout(() => !partialInput[debt._id] && setIsEditing(null), 250)}
                                                                     />
                                                                     <button className="btn btn-sm btn-success" onClick={async () => {
                                                                         const inputVal = parseFloat(partialInput[debt._id] || 0);
                                                                         if (inputVal <= 0) return alert("Enter valid amount");
-                                                                        const remainingToPay = totalWithInterest - (debt.amountPaid || 0);
-                                                                        if (inputVal > remainingToPay) return alert(`Payment exceeds balance!`);
 
-                                                                        let newTotalPaid = (debt.amountPaid || 0) + inputVal;
-                                                                        let statusToSave = newTotalPaid >= totalWithInterest ? 'Fully Paid' : 'Partially Paid';
-
-                                                                        handleStatusChange(debt._id, statusToSave);
+                                                                        try {
+                                                                            await axios.patch(`http://localhost:5000/api/debts/${debt._id}/status`, {
+                                                                                status: 'Partially Paid',
+                                                                                amountPaid: (debt.amountPaid || 0) + inputVal
+                                                                            });
+                                                                            setIsEditing(null);
+                                                                            setPartialInput({ ...partialInput, [debt._id]: '' });
+                                                                            fetchDebts();
+                                                                        } catch (e) { alert("Error saving payment"); }
                                                                     }}>✓</button>
                                                                 </div>
                                                             )}
