@@ -374,7 +374,7 @@ const DebtTracker = () => {
                                                             <td className="small text-center">{debt.debtDate}</td>
                                                             <td className="small text-center">{view === 'active' ? (debt.dueDate || 'No Due Date') : (debt.datePaid || debt.dueDate)}</td>
                                                             <td className="fw-bold text-primary text-center">
-                                                                {debt.status === 'Fully Paid' ? <span className="text-decoration-line-through text-success">₱{totalWithInterest.toLocaleString()}</span> :
+                                                                {debt.status === 'Fully Paid' ? <span className="text-success">₱{totalWithInterest.toLocaleString()}</span> :
                                                                     (<><div>₱{remainingBalance.toLocaleString()}</div>{debt.amountPaid > 0 && <small className="text-success d-block" style={{ fontSize: '0.7rem' }}>Paid: ₱{debt.amountPaid}</small>}</>)}
                                                             </td>
                                                             {view === 'history' && (
