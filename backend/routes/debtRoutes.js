@@ -37,19 +37,21 @@ router.delete('/:id', async (req, res) => {
 
 router.patch('/:id/status', async (req, res) => {
     try {
-        const { status, amountPaid } = req.body;
-        let updateData = { status }; 
-        if (amountPaid !== undefined) {
-            updateData.amountPaid = amountPaid;
-        }
+        const { status, amountPaid, paymentMethod, datePaid } = req.body;
         const updatedDebt = await Debt.findByIdAndUpdate(
             req.params.id,
-            updateData,                
+            {
+                status,
+                amountPaid,
+                paymentMethod,
+                datePaid
+            },
             { new: true }
         );
+
         res.json(updatedDebt);
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        res.status(400).json({ message: err.message });
     }
 });
 

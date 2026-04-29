@@ -13,6 +13,13 @@ const DebtTracker = () => {
     const [currentTime, setCurrentTime] = useState(new Date());
     const [view, setView] = useState('active');
 
+    const paymentMethods = [
+        { label: 'Cash', color: 'bg-success' },
+        { label: 'E-Wallet', color: 'bg-primary' },
+        { label: 'Bank Transfer', color: 'bg-info text-dark' },
+        { label: 'Others', color: 'bg-secondary' }
+    ];
+
     useEffect(() => {
         const timer = setInterval(() => {
             setCurrentTime(new Date());
@@ -183,6 +190,23 @@ const DebtTracker = () => {
         }
     };
 
+    const handleMethodChange = async (id, newMethod) => {
+        const debt = debts.find(d => d._id === id);
+        if (!debt) return;
+
+        try {
+            await axios.patch(`http://localhost:5000/api/debts/${id}/status`, {
+                status: debt.status,
+                amountPaid: debt.amountPaid,
+                paymentMethod: newMethod
+            });
+            fetchDebts();
+        } catch (error) {
+            console.error("Update failed:", error);
+            alert("Method update failed. Please try again.");
+        }
+    };
+
     return (
         <div className={`min-vh-100 ${darkMode ? 'bg-dark text-white' : 'bg-light'} w-100 vw-100 overflow-hidden transition-all`}>
             {/* Navbar with Total Display */}
@@ -283,7 +307,7 @@ const DebtTracker = () => {
                                             {/* Dynamic Column: Due Date for Active, Date Settled for History */}
                                             <th className="text-center">{view === 'active' ? 'Due Date' : 'Date Settled'}</th>
                                             <th className="text-center">Total Amount</th>
-                                            {/* Extra Column for Method pag History View */}
+                                            {/* Extra Column for Method for History View */}
                                             {view === 'history' && <th className="text-center">Method</th>}
                                             <th className="text-center">Action</th>
                                         </tr>
@@ -374,9 +398,31 @@ const DebtTracker = () => {
                                                         {/* New Column: Payment Method Badge (History only) */}
                                                         {view === 'history' && (
                                                             <td className="text-center">
-                                                                <span className="badge rounded-pill bg-info text-dark" style={{ cursor: 'pointer' }}>
-                                                                    {debt.paymentMethod || 'Cash'}
-                                                                </span>
+                                                                {(() => {
+                                                                    const currentMethod = paymentMethods.find(m => m.label === (debt.paymentMethod || 'Cash')) || paymentMethods[0];
+
+                                                                    return (
+                                                                        <div style={{ width: 'fit-content', margin: '0 auto' }}>
+                                                                            <select
+                                                                                className={`form-select form-select-sm border-0 fw-bold badge ${currentMethod.color}`}
+                                                                                style={{
+                                                                                    width: 'fit-content',
+                                                                                    appearance: 'none',
+                                                                                    textAlign: 'center',
+                                                                                    cursor: 'pointer'
+                                                                                }}
+                                                                                value={debt.paymentMethod || 'Cash'}
+                                                                                onChange={(e) => handleMethodChange(debt._id, e.target.value)}
+                                                                            >
+                                                                                {paymentMethods.map((m) => (
+                                                                                    <option key={m.label} value={m.label} className="bg-white text-dark">
+                                                                                        {m.label}
+                                                                                    </option>
+                                                                                ))}
+                                                                            </select>
+                                                                        </div>
+                                                                    );
+                                                                })()}
                                                             </td>
                                                         )}
 
@@ -388,7 +434,7 @@ const DebtTracker = () => {
                                             })
                                         ) : (
                                             <tr><td colSpan={view === 'history' ? 8 : 7}
-                                            className={`text-center py-5 ${darkMode ? 'text-white-50 opacity-50' : 'text-muted'}`}>No debt records found.</td></tr>
+                                                className={`text-center py-5 ${darkMode ? 'text-white-50 opacity-50' : 'text-muted'}`}>No debt records found.</td></tr>
                                         )}
                                     </tbody>
                                 </table>
