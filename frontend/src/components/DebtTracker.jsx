@@ -163,31 +163,23 @@ const DebtTracker = () => {
         if (!debt) return;
 
         const totalWithInterest = calculateTotalWithSmartInterest(debt);
-        const currentPaid = parseFloat(debt.amountPaid || 0);
 
-        if (newStatus === 'Partially Paid') {
-            setIsEditing(id);
-            return;
-        }
-
-        let finalAmountPaid = currentPaid;
+        let updateData = {
+            status: newStatus,
+            amountPaid: newStatus === 'Fully Paid' ? totalWithInterest : (newStatus === 'Pending' ? 0 : debt.amountPaid)
+        };
 
         if (newStatus === 'Fully Paid') {
-            finalAmountPaid = totalWithInterest;
-        } else if (newStatus === 'Unpaid') {
-            finalAmountPaid = 0;
+            updateData.datePaid = new Date().toLocaleDateString('en-CA');
+            updateData.paymentMethod = 'Cash';
         }
 
         try {
-            await axios.patch(`http://localhost:5000/api/debts/${id}/status`, {
-                status: newStatus,
-                amountPaid: finalAmountPaid
-            });
+            await axios.patch(`http://localhost:5000/api/debts/${id}/status`, updateData);
             setIsEditing(null);
             fetchDebts();
         } catch (error) {
-            console.error("Update failed:", error);
-            alert("Failed to update status.");
+            alert("Update failed.");
         }
     };
 
@@ -281,26 +273,18 @@ const DebtTracker = () => {
                                         <tr className="small">
                                             <th onClick={() => requestSort('debtorName')} style={{ cursor: 'pointer', transition: 'all 0.2s' }} className="text-center">
                                                 Name & Status
-                                                <span className="ms-1 opacity-50" style={{ fontSize: '0.8rem' }}>
+                                                <span className="ms-1 opacity-50">
                                                     {sortConfig.key === 'debtorName' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}
-                                                </span></th>
-                                            <th onClick={() => requestSort('amount')} style={{ cursor: 'pointer' }} className="text-center">
-                                                Base Amount
-                                                <span className="ms-1 opacity-50" style={{ fontSize: '0.8rem' }}>
-                                                    {sortConfig.key === 'amount' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}
-                                                </span></th>
+                                                </span>
+                                            </th>
+                                            <th onClick={() => requestSort('amount')} style={{ cursor: 'pointer' }} className="text-center">Base Amount</th>
                                             <th className="text-center">Interest</th>
-                                            <th onClick={() => requestSort('debtDate')} style={{ cursor: 'pointer' }} className="text-center">
-                                                Borrowed
-                                                <span className="ms-1 opacity-50" style={{ fontSize: '0.8rem' }}>
-                                                    {sortConfig.key === 'debtDate' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}
-                                                </span></th>
-                                            <th onClick={() => requestSort('dueDate')} style={{ cursor: 'pointer' }} className="text-center">
-                                                Due Date
-                                                <span className="ms-1 opacity-50" style={{ fontSize: '0.8rem' }}>
-                                                    {sortConfig.key === 'dueDate' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}
-                                                </span></th>
+                                            <th onClick={() => requestSort('debtDate')} style={{ cursor: 'pointer' }} className="text-center">Date Borrowed</th>
+                                            {/* Dynamic Column: Due Date for Active, Date Settled for History */}
+                                            <th className="text-center">{view === 'active' ? 'Due Date' : 'Date Settled'}</th>
                                             <th className="text-center">Total Amount</th>
+                                            {/* Extra Column for Method pag History View */}
+                                            {view === 'history' && <th className="text-center">Method</th>}
                                             <th className="text-center">Action</th>
                                         </tr>
                                     </thead>
@@ -319,24 +303,15 @@ const DebtTracker = () => {
                                                         <td>
                                                             <div className={`fw-bold ${darkMode ? 'text-light' : 'text-dark'}`}>{debt.debtorName}</div>
                                                             <div
-                                                                onClick={() => {
-                                                                    if (debt.status === 'Partially Paid') {
-                                                                        setIsEditing(debt._id);
-                                                                    }
-                                                                }}
-                                                                style={{ cursor: debt.status === 'Fully Paid' ? 'not-allowed' : 'pointer', width: 'fit-content' }}
+                                                                onClick={() => debt.status === 'Partially Paid' && setIsEditing(debt._id)}
+                                                                style={{ cursor: debt.status === 'Fully Paid' ? 'default' : 'pointer', width: 'fit-content' }}
                                                             >
                                                                 <select
                                                                     className={`form-select form-select-sm border-0 fw-bold badge ${displayStatus === 'Overdue' ? 'bg-danger' :
                                                                         debt.status === 'Fully Paid' ? 'bg-success text-white' :
                                                                             debt.status === 'Partially Paid' ? 'bg-warning text-dark' : 'bg-secondary text-white'
                                                                         }`}
-                                                                    style={{
-                                                                        width: 'fit-content',
-                                                                        appearance: 'none',
-                                                                        textAlign: 'center',
-                                                                        pointerEvents: debt.status === 'Partially Paid' ? 'none' : 'auto'
-                                                                    }}
+                                                                    style={{ width: 'fit-content', appearance: 'none', textAlign: 'center', pointerEvents: debt.status === 'Partially Paid' ? 'none' : 'auto' }}
                                                                     value={displayStatus}
                                                                     disabled={debt.status === 'Fully Paid'}
                                                                     onChange={(e) => handleStatusChange(debt._id, e.target.value, debt.amountPaid)}
@@ -355,81 +330,58 @@ const DebtTracker = () => {
                                                                     <input
                                                                         type="number"
                                                                         className={`form-control form-control-sm ${darkMode ? 'bg-dark text-white border-secondary' : ''}`}
-                                                                        placeholder="Amt Paid"
                                                                         style={{ width: '80px' }}
                                                                         value={partialInput[debt._id] || ''}
                                                                         autoFocus
                                                                         onChange={(e) => setPartialInput({ ...partialInput, [debt._id]: e.target.value })}
-                                                                        onBlur={() => {
-                                                                            setTimeout(() => {
-                                                                                if (!partialInput[debt._id]) {
-                                                                                    setIsEditing(null);
-                                                                                }
-                                                                            }, 250);
-                                                                        }}
+                                                                        onBlur={() => setTimeout(() => !partialInput[debt._id] && setIsEditing(null), 250)}
                                                                     />
+                                                                    <button className="btn btn-sm btn-success" onClick={async () => {
+                                                                        const inputVal = parseFloat(partialInput[debt._id] || 0);
+                                                                        if (inputVal <= 0) return alert("Enter valid amount");
+                                                                        const remainingToPay = totalWithInterest - (debt.amountPaid || 0);
+                                                                        if (inputVal > remainingToPay) return alert(`Payment exceeds balance!`);
 
-                                                                    <button
-                                                                        className="btn btn-sm btn-success"
-                                                                        onClick={async () => {
-                                                                            const inputVal = parseFloat(partialInput[debt._id] || 0);
-                                                                            if (inputVal <= 0) return alert("Enter valid amount");
+                                                                        let newTotalPaid = (debt.amountPaid || 0) + inputVal;
+                                                                        let statusToSave = newTotalPaid >= totalWithInterest ? 'Fully Paid' : 'Partially Paid';
 
-                                                                            const totalWithInterest = calculateTotalWithSmartInterest(debt);
-                                                                            const previousPaid = parseFloat(debt.amountPaid || 0);
-                                                                            const remainingToPay = totalWithInterest - previousPaid;
-
-                                                                            if (inputVal > remainingToPay) {
-                                                                                return alert(`Payment exceeds balance! Only ₱${remainingToPay.toLocaleString()} remaining.`);
-                                                                            }
-
-                                                                            let newTotalPaid = previousPaid + inputVal;
-                                                                            let statusToSave = 'Partially Paid';
-
-                                                                            if (newTotalPaid >= totalWithInterest) {
-                                                                                statusToSave = 'Fully Paid';
-                                                                                newTotalPaid = totalWithInterest;
-                                                                            }
-
-                                                                            try {
-                                                                                await axios.patch(`http://localhost:5000/api/debts/${debt._id}/status`, { status: statusToSave, amountPaid: newTotalPaid });
-                                                                                setIsEditing(null);
-                                                                                setPartialInput({ ...partialInput, [debt._id]: '' });
-                                                                                fetchDebts();
-                                                                            } catch (error) {
-                                                                                alert("Update failed");
-                                                                            }
-                                                                        }}
-                                                                    >
-                                                                        ✓
-                                                                    </button>
+                                                                        handleStatusChange(debt._id, statusToSave);
+                                                                    }}>✓</button>
                                                                 </div>
                                                             )}
                                                         </td>
-                                                        <td className="fw-semibold">₱{baseAmount.toLocaleString()}</td>
-                                                        <td className="text">{debt.interest}%</td>
-                                                        <td className="small text">{debt.dueDate || today}</td>
-                                                        <td className="small text">{debt.dueDate || 'No Due Date'}</td>
-                                                        <td className="fw-bold text-primary">
+
+                                                        <td className="fw-semibold text-center">₱{baseAmount.toLocaleString()}</td>
+                                                        <td className="text-center">{debt.interest}%</td>
+                                                        <td className="small text-center">{debt.debtDate}</td>
+
+                                                        {/* Dynamic Date Cell: Due Date (Active) or Date Paid (History) */}
+                                                        <td className="small text-center">
+                                                            {view === 'active' ? (debt.dueDate || 'No Due Date') : (debt.datePaid || debt.dueDate)}
+                                                        </td>
+
+                                                        <td className="fw-bold text-primary text-center">
                                                             {debt.status === 'Fully Paid' ? (
-                                                                <span className="text text-decoration-line-through">
-                                                                    ₱{totalWithInterest.toLocaleString()}
-                                                                </span>
+                                                                <span className="text-decoration-line-through text-success">₱{totalWithInterest.toLocaleString()}</span>
                                                             ) : (
                                                                 <>
                                                                     <div>₱{remainingBalance.toLocaleString()}</div>
-                                                                    {debt.amountPaid > 0 && (
-                                                                        <small className="text-success d-block" style={{ fontSize: '0.7rem' }}>
-                                                                            Paid: ₱{debt.amountPaid.toLocaleString()}
-                                                                        </small>
-                                                                    )}
+                                                                    {debt.amountPaid > 0 && <small className="text-success d-block" style={{ fontSize: '0.7rem' }}>Paid: ₱{debt.amountPaid}</small>}
                                                                 </>
                                                             )}
                                                         </td>
+
+                                                        {/* New Column: Payment Method Badge (History only) */}
+                                                        {view === 'history' && (
+                                                            <td className="text-center">
+                                                                <span className="badge rounded-pill bg-info text-dark" style={{ cursor: 'pointer' }}>
+                                                                    {debt.paymentMethod || 'Cash'}
+                                                                </span>
+                                                            </td>
+                                                        )}
+
                                                         <td className="text-center px-3">
-                                                            <button className="btn btn-sm btn-outline-danger border-0" onClick={() => handleDelete(debt._id)}>
-                                                                Delete
-                                                            </button>
+                                                            <button className="btn btn-sm btn-outline-danger border-0" onClick={() => handleDelete(debt._id)}>Delete</button>
                                                         </td>
                                                     </tr>
                                                 );
