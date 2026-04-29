@@ -332,20 +332,25 @@ const DebtTracker = () => {
                                                             >
                                                                 <select
                                                                     className={`form-select form-select-sm border-0 fw-bold badge ${displayStatus === 'Overdue' ? 'bg-danger' :
-                                                                        debt.status === 'Fully Paid' ? 'bg-success text-white' :
+                                                                        debt.status === 'Fully Paid' ? 'bg-success' :
                                                                             debt.status === 'Partially Paid' ? 'bg-warning text-dark' : 'bg-secondary text-white'
                                                                         }`}
-                                                                    style={{ width: 'fit-content', appearance: 'none', textAlign: 'center', pointerEvents: debt.status === 'Partially Paid' ? 'none' : 'auto' }}
+                                                                    style={{
+                                                                        width: 'fit-content',
+                                                                        appearance: 'none',
+                                                                        textAlign: 'center',
+                                                                        pointerEvents: debt.status === 'Partially Paid' ? 'none' : 'auto',
+                                                                        backgroundColor: 'inherit',
+                                                                        color: 'inherit'
+                                                                    }}
                                                                     value={displayStatus}
                                                                     disabled={debt.status === 'Fully Paid'}
                                                                     onChange={(e) => handleStatusChange(debt._id, e.target.value, debt.amountPaid)}
                                                                 >
-                                                                    {!(debt.status === 'Partially Paid' || displayStatus === 'Overdue' || debt.amountPaid > 0) && (
-                                                                        <option value="Unpaid">Unpaid</option>
-                                                                    )}
-                                                                    <option value="Partially Paid">Partially Paid</option>
-                                                                    <option value="Fully Paid">Fully Paid</option>
-                                                                    <option value="Overdue">Overdue</option>
+                                                                    <option value="Unpaid" className={darkMode ? 'bg-dark text-white' : 'bg-white text-dark'}>Unpaid</option>
+                                                                    <option value="Partially Paid" className={darkMode ? 'bg-dark text-white' : 'bg-white text-dark'}>Partially Paid</option>
+                                                                    <option value="Fully Paid" className={darkMode ? 'bg-dark text-white' : 'bg-white text-dark'}>Fully Paid</option>
+                                                                    <option value="Overdue" className={darkMode ? 'bg-dark text-white' : 'bg-white text-dark'}>Overdue</option>
                                                                 </select>
                                                             </div>
 
@@ -404,18 +409,23 @@ const DebtTracker = () => {
                                                                     return (
                                                                         <div style={{ width: 'fit-content', margin: '0 auto' }}>
                                                                             <select
-                                                                                className={`form-select form-select-sm border-0 fw-bold badge ${currentMethod.color}`}
+                                                                                className={`form-select form-select-sm border-0 fw-bold badge ${currentMethod.color} text-white`} // DINAGDAG: text-white
                                                                                 style={{
                                                                                     width: 'fit-content',
                                                                                     appearance: 'none',
                                                                                     textAlign: 'center',
-                                                                                    cursor: 'pointer'
+                                                                                    cursor: 'pointer',
+                                                                                    color: 'white !important'
                                                                                 }}
                                                                                 value={debt.paymentMethod || 'Cash'}
                                                                                 onChange={(e) => handleMethodChange(debt._id, e.target.value)}
                                                                             >
                                                                                 {paymentMethods.map((m) => (
-                                                                                    <option key={m.label} value={m.label} className="bg-white text-dark">
+                                                                                    <option
+                                                                                        key={m.label}
+                                                                                        value={m.label}
+                                                                                        className={darkMode ? 'bg-dark text-white' : 'bg-white text-dark'}
+                                                                                    >
                                                                                         {m.label}
                                                                                     </option>
                                                                                 ))}
