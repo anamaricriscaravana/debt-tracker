@@ -148,7 +148,7 @@ const DebtTracker = () => {
         }
 
         try {
-            const dataToSave = { ...formData, status: 'Pending' };
+            const dataToSave = { ...formData, status: 'Unpaid' };
             await axios.post('http://localhost:5000/api/debts/add', dataToSave)
             await fetchDebts();
             setFormData({ debtorName: '', amount: '', debtDate: today, dueDate: '', interest: 0 });
@@ -174,7 +174,7 @@ const DebtTracker = () => {
 
         if (newStatus === 'Fully Paid') {
             finalAmountPaid = totalWithInterest;
-        } else if (newStatus === 'Pending') {
+        } else if (newStatus === 'Unpaid') {
             finalAmountPaid = 0;
         }
 
@@ -342,7 +342,7 @@ const DebtTracker = () => {
                                                                     onChange={(e) => handleStatusChange(debt._id, e.target.value, debt.amountPaid)}
                                                                 >
                                                                     {!(debt.status === 'Partially Paid' || displayStatus === 'Overdue' || debt.amountPaid > 0) && (
-                                                                        <option value="Pending">Pending</option>
+                                                                        <option value="Unpaid">Unpaid</option>
                                                                     )}
                                                                     <option value="Partially Paid">Partially Paid</option>
                                                                     <option value="Fully Paid">Fully Paid</option>
