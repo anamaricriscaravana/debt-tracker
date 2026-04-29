@@ -53,8 +53,8 @@ const DebtTracker = () => {
         const baseAmount = parseFloat(debt.amount || 0);
         const interestVal = parseFloat(debt.interest || 0);
         const amountPaid = parseFloat(debt.amountPaid || 0);
-        const isPastDue = debt.dueDate && today > debt.dueDate;
-        const shouldApplyInterest = (isPastDue || amountPaid > baseAmount || debt.status === 'Fully Paid') && interestVal > 0;
+        const isPastDueDate = debt.dueDate && today > debt.dueDate;
+        const shouldApplyInterest = (isPastDueDate || debt.status === 'Overdue' || amountPaid > baseAmount || debt.status === 'Fully Paid') && interestVal > 0;
         if (debt.status === 'Fully Paid' && amountPaid > baseAmount) {
             return amountPaid;
         }
