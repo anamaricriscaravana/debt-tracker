@@ -52,8 +52,13 @@ const DebtTracker = () => {
     const calculateTotalWithSmartInterest = (debt) => {
         const baseAmount = parseFloat(debt.amount || 0);
         const interestVal = parseFloat(debt.interest || 0);
+        const amountPaid = parseFloat(debt.amountPaid || 0);
         const isPastDue = debt.dueDate && today > debt.dueDate;
-        const shouldApplyInterest = isPastDue && debt.status !== 'Fully Paid';
+        const shouldApplyInterest = (isPastDue || amountPaid > baseAmount || debt.status === 'Fully Paid') && interestVal > 0;
+        if (debt.status === 'Fully Paid' && amountPaid > baseAmount) {
+            return amountPaid;
+        }
+
         const appliedInterest = shouldApplyInterest ? (baseAmount * (interestVal / 100)) : 0;
         return baseAmount + appliedInterest;
     };
@@ -137,30 +142,17 @@ const DebtTracker = () => {
         const totalWithInterest = calculateTotalWithSmartInterest(debt);
         const currentPaid = parseFloat(debt.amountPaid || 0);
 
-        if (debt.status === 'Fully Paid') {
-            alert("This record is already fully paid and locked.");
-            return;
-        }
-
-        if (newStatus === 'Pending' && (debt.status === 'Partially Paid' || currentPaid > 0)) {
-            alert("Cannot revert to Pending. Payments have already been made.");
-            return;
-        }
-
-        if (newStatus === 'Pending' && debt.status === 'Overdue') {
-            alert("Cannot revert an Overdue debt to Pending.");
-            return;
-        }
-
         if (newStatus === 'Partially Paid') {
             setIsEditing(id);
             return;
         }
 
         let finalAmountPaid = currentPaid;
-
+        
         if (newStatus === 'Fully Paid') {
             finalAmountPaid = totalWithInterest;
+        } else if (newStatus === 'Pending') {
+            finalAmountPaid = 0;
         }
 
         try {
@@ -395,7 +387,7 @@ const DebtTracker = () => {
                                                                     <div>₱{remainingBalance.toLocaleString()}</div>
                                                                     {debt.amountPaid > 0 && (
                                                                         <small className="text-success d-block" style={{ fontSize: '0.7rem' }}>
-                                                                            Paid: ₱{debt.amountPaid}
+                                                                            Paid: ₱{debt.amountPaid.toLocaleString()}
                                                                         </small>
                                                                     )}
                                                                 </>
