@@ -11,6 +11,7 @@ const DebtTracker = () => {
     const [sortConfig, setSortConfig] = useState({ key: 'debtorName', direction: 'asc' });
     const [isEditing, setIsEditing] = useState(null);
     const [currentTime, setCurrentTime] = useState(new Date());
+    const [view, setView] = useState('active');
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -65,16 +66,11 @@ const DebtTracker = () => {
         const totalWithInterest = calculateTotalWithSmartInterest(debt);
         const remainingBalance = totalWithInterest - (debt.amountPaid || 0);
 
-        const debtorName = (debt.debtorName || "").toLowerCase();
-        const status = (debt.status || "").toLowerCase();
-        const dueDate = (debt.dueDate || "").toLowerCase();
-        const debtDate = (debt.debtDate || "").toLowerCase();
-
         return (
-            debtorName.includes(search) ||
-            status.includes(search) ||
-            dueDate.includes(search) ||
-            debtDate.includes(search) ||
+            (debt.debtorName || "").toLowerCase().includes(search) ||
+            (debt.status || "").toLowerCase().includes(search) ||
+            (debt.dueDate || "").toLowerCase().includes(search) ||
+            (debt.debtDate || "").toLowerCase().includes(search) ||
             debt.amount.toString().includes(search) ||
             (debt.interest && debt.interest.toString().includes(search)) ||
             totalWithInterest.toString().includes(search) ||
@@ -104,7 +100,15 @@ const DebtTracker = () => {
         return 0;
     });
 
-    const totalDebt = filteredDebts.reduce((acc, curr) => {
+    const displayDebts = sortedDebts.filter(debt => {
+        if (view === 'active') {
+            return debt.status !== 'Fully Paid';
+        } else {
+            return debt.status === 'Fully Paid';
+        }
+    });
+
+    const totalDebt = debts.reduce((acc, curr) => {
         if (curr.status === 'Fully Paid') return acc;
         const totalWithInterest = calculateTotalWithSmartInterest(curr);
         const balance = totalWithInterest - (curr.amountPaid || 0);
@@ -195,7 +199,7 @@ const DebtTracker = () => {
                     <span className="navbar-brand fw-bold fs-4">DEBT TRACKER</span>
                     <div className="d-flex align-items-center text-white gap-3 ms-auto">
                         <div className="text-end">
-                            <small className="d-block opacity-75" style={{ fontSize: '0.7rem' }}>Total</small>
+                            <small className="d-block opacity-75" style={{ fontSize: '0.7rem' }}>Active Balance</small>
                             <span className="fw-bold fs-5">₱{totalDebt.toLocaleString()}</span>
                         </div>
                         <div className="vr mx-2 opacity-50" style={{ height: '30px' }}></div>
@@ -263,9 +267,12 @@ const DebtTracker = () => {
                         <div className={`card shadow-sm border-0 ${darkMode ? 'bg-secondary text-white' : 'bg-white'}`}>
                             <div className="card-body p-4">
                                 <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
-                                    <h5 className={`fw-bold mb-0 ${darkMode ? 'text-light' : 'text-dark'}`}>Active Debt List</h5>
+                                    <div className="btn-group shadow-sm">
+                                        <button className={`btn btn-sm ${view === 'active' ? 'btn-primary' : 'btn-outline-primary'}`} onClick={() => setView('active')}>Active List</button>
+                                        <button className={`btn btn-sm ${view === 'history' ? 'btn-primary' : 'btn-outline-primary'}`} onClick={() => setView('history')}>History</button>
+                                    </div>
                                     <div className="input-group" style={{ maxWidth: '350px' }}>
-                                        <input type="text" className={`form-control shadow-none ${darkMode ? 'bg-dark text-white border-secondary' : ''}`} placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                                        <input type="text" className={`form-control shadow-none ${darkMode ? 'bg-dark text-white border-secondary' : ''}`} placeholder="Search everything..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
                                     </div>
                                 </div>
 
@@ -298,8 +305,8 @@ const DebtTracker = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {sortedDebts.length > 0 ? (
-                                            sortedDebts.map((debt) => {
+                                        {displayDebts.length > 0 ? (
+                                            displayDebts.map((debt) => {
                                                 const baseAmount = parseFloat(debt.amount || 0);
                                                 const totalWithInterest = calculateTotalWithSmartInterest(debt);
                                                 const remainingBalance = totalWithInterest - (debt.amountPaid || 0);
