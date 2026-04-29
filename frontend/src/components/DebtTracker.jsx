@@ -123,10 +123,13 @@ const DebtTracker = () => {
     });
 
     const totalDebt = displayDebts.reduce((acc, curr) => {
-        if (curr.status === 'Fully Paid') return acc;
         const totalWithInterest = calculateTotalWithSmartInterest(curr);
-        const balance = totalWithInterest - (curr.amountPaid || 0);
-        return acc + balance;
+        if (view === 'active') {
+            const balance = totalWithInterest - (curr.amountPaid || 0);
+            return acc + balance;
+        } else {
+            return acc + (curr.amountPaid || 0);
+        }
     }, 0);
 
     const handleChange = (e) => {
@@ -227,7 +230,9 @@ const DebtTracker = () => {
                     <span className="navbar-brand fw-bold fs-4">DEBT TRACKER</span>
                     <div className="d-flex align-items-center text-white gap-3 ms-auto">
                         <div className="text-end">
-                            <small className="d-block opacity-75" style={{ fontSize: '0.7rem' }}>Active Balance</small>
+                            <small className="d-block opacity-75" style={{ fontSize: '0.7rem' }}>
+                                {view === 'active' ? 'Active Balance' : 'Total Settled'}
+                            </small>
                             <span className="fw-bold fs-5">₱{totalDebt.toLocaleString()}</span>
                         </div>
                         <div className="vr mx-2 opacity-50" style={{ height: '30px' }}></div>
