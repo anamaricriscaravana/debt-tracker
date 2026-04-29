@@ -94,8 +94,15 @@ const DebtTracker = () => {
     };
 
     const sortedDebts = [...filteredDebts].sort((a, b) => {
-        let aValue = a[sortConfig.key];
-        let bValue = b[sortConfig.key];
+        let aValue, bValue;
+
+        if (sortConfig.key === 'totalAmount') {
+            aValue = calculateTotalWithSmartInterest(a) - (a.amountPaid || 0);
+            bValue = calculateTotalWithSmartInterest(b) - (b.amountPaid || 0);
+        } else {
+            aValue = a[sortConfig.key];
+            bValue = b[sortConfig.key];
+        }
 
         if (['amount', 'interest'].includes(sortConfig.key)) {
             aValue = parseFloat(aValue || 0);
@@ -301,12 +308,25 @@ const DebtTracker = () => {
                                                     {sortConfig.key === 'debtorName' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}
                                                 </span>
                                             </th>
-                                            <th onClick={() => requestSort('amount')} style={{ cursor: 'pointer' }} className="text-center">Base Amount</th>
-                                            <th className="text-center">Interest</th>
-                                            <th onClick={() => requestSort('debtDate')} style={{ cursor: 'pointer' }} className="text-center">Date Borrowed</th>
+                                            <th onClick={() => requestSort('amount')} style={{ cursor: 'pointer',transition: 'all 0.2s' }} className="text-center">Base Amount<span className="ms-1 opacity-50">
+                                                    {sortConfig.key === 'amount' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}
+                                                </span></th>
+                                            <th onClick={() => requestSort('interest')} style={{ cursor: 'pointer',transition: 'all 0.2s' }} className="text-center">Interest <span className="ms-1 opacity-50">
+                                                    {sortConfig.key === 'interest' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}
+                                                </span>
+                                                </th>
+                                            <th onClick={() => requestSort('debtDate')} style={{ cursor: 'pointer', transition: 'all 0.2s' }} className="text-center">Date Borrowed <span className="ms-1 opacity-50">
+                                                    {sortConfig.key === 'debtDate' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}
+                                                </span>
+                                                </th>
                                             {/* Dynamic Column: Due Date for Active, Date Settled for History */}
-                                            <th className="text-center">{view === 'active' ? 'Due Date' : 'Date Settled'}</th>
-                                            <th className="text-center">Total Amount</th>
+                                            <th onClick={() => requestSort('debtDate')} style={{ cursor: 'pointer', transition: 'all 0.2s' }} className="text-center">{view === 'active' ? 'Due Date' : 'Date Settled'}<span className="ms-1 opacity-50">
+                                                    {sortConfig.key === 'debtDate' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}
+                                                </span>
+                                                </th>
+                                            <th onClick={() => requestSort('totalAmount')} style={{ cursor: 'pointer', transition: 'all 0.2s' }} className="text-center">Total Amount<span className="ms-1 opacity-50">
+                                                {sortConfig.key === 'totalAmount' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}
+                                                </span></th>
                                             {/* Extra Column for Method for History View */}
                                             {view === 'history' && <th className="text-center">Method</th>}
                                             <th className="text-center" style={{ width: '70px' }}>Action</th>
