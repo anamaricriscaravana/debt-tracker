@@ -1,5 +1,27 @@
 .table {
-    table-layout: auto;
+    table-layout: auto !important;
+    margin-bottom: 0;
+}
+
+@media (min-width: 992px) {
+    .table-responsive {
+        overflow-x: visible !important;
+    }
+}
+
+.container-fluid {
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+.card {
+    margin-bottom: 20px;
+}
+
+th, td {
+    white-space: nowrap; 
+    padding-left: 15px !important;
+    padding-right: 15px !important;
 }
 
 * {

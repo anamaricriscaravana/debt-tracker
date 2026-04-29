@@ -220,8 +220,8 @@ const DebtTracker = () => {
     };
 
     return (
-        <div className={`min-vh-100 ${darkMode ? 'bg-dark text-white' : 'bg-light'} w-100 vw-100 overflow-hidden transition-all`}>
-            {/* Navbar with Total Display */}
+        <div className={`min-vh-100 ${darkMode ? 'bg-dark text-white' : 'bg-light'} w-100 overflow-hidden transition-all`}>
+            {/* Navbar */}
             <nav className={`navbar ${darkMode ? 'navbar-dark bg-black' : 'navbar-dark bg-primary'} shadow-sm sticky-top w-100`}>
                 <div className="container-fluid px-4">
                     <span className="navbar-brand fw-bold fs-4">DEBT TRACKER</span>
@@ -232,67 +232,58 @@ const DebtTracker = () => {
                         </div>
                         <div className="vr mx-2 opacity-50" style={{ height: '30px' }}></div>
                         <div className="px-3 d-none d-md-block text-center">
-                            <div className="small fw-bold" style={{ fontSize: '0.8rem', lineHeight: '1' }}>
+                            <div className="small fw-bold" style={{ fontSize: '0.8rem' }}>
                                 {currentTime.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                             </div>
                             <small className="opacity-75" style={{ fontSize: '0.7rem' }}>
                                 {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                             </small>
                         </div>
-                        <div className="vr opacity-25 d-none d-md-block" style={{ height: '30px' }}></div>
-                        <button
-                            className={`btn btn-sm ${darkMode ? 'btn-warning' : 'btn-light'} rounded-pill px-3 fw-bold`}
-                            onClick={() => setDarkMode(!darkMode)}
-                        >
+                        <button className={`btn btn-sm ${darkMode ? 'btn-warning' : 'btn-light'} rounded-pill px-3 fw-bold`} onClick={() => setDarkMode(!darkMode)}>
                             {darkMode ? '☀️' : '🌙'}
                         </button>
                     </div>
                 </div>
             </nav>
 
-            <div className="container-fluid px-0 mx-0 w-100">
-                <div className="row g-4 m-0 p-4">
-                    {/* Record Form */}
+            {/* Main Content */}
+            <div className="container-fluid px-md-5 px-3 py-4">
+                <div className="row g-4">
+                    {/* Record Form Side */}
                     <div className="col-lg-3">
                         <div className={`card shadow-sm border-0 sticky-lg-top ${darkMode ? 'bg-secondary text-white shadow-lg' : 'bg-white'}`} style={{ top: '90px' }}>
                             <div className="card-body p-4">
                                 <h5 className={`fw-bold mb-4 border-bottom pb-2 ${darkMode ? 'border-dark text-light' : 'text-dark'}`}>Record New Debt</h5>
                                 <form onSubmit={handleSubmit}>
                                     <div className="mb-3">
-                                        <label className={`form-label small fw-bold ${darkMode ? 'text-light' : 'text-dark'}`}>Debtor Name</label>
-                                        <input name="debtorName" className={`form-control form-control-sm shadow-none ${darkMode ? 'bg-dark text-white border-dark' : 'bg-white text-dark border-secondary-subtle'}`} placeholder="Who borrowed?" value={formData.debtorName} onChange={handleChange} required />
+                                        <label className="form-label small fw-bold">Debtor Name</label>
+                                        <input name="debtorName" className={`form-control form-control-sm shadow-none ${darkMode ? 'bg-dark text-white border-dark' : ''}`} placeholder="Who borrowed?" value={formData.debtorName} onChange={handleChange} required />
                                     </div>
                                     <div className="mb-3">
-                                        <label className={`form-label small fw-bold ${darkMode ? 'text-light' : 'text-dark'}`}>Amount (PHP)</label>
-                                        <input name="amount" type="number" className={`form-control form-control-sm shadow-none ${darkMode ? 'bg-dark text-white border-dark' : 'bg-white text-dark border-secondary-subtle'}`} placeholder="0.00" value={formData.amount} onChange={handleChange} required />
+                                        <label className="form-label small fw-bold">Amount (PHP)</label>
+                                        <input name="amount" type="number" className={`form-control form-control-sm shadow-none ${darkMode ? 'bg-dark text-white border-dark' : ''}`} placeholder="0.00" value={formData.amount} onChange={handleChange} required />
                                     </div>
                                     <div className="mb-3">
-                                        <label className={`form-label small fw-bold ${darkMode ? 'text-light' : 'text-dark'}`}>Interest (%) <small className={darkMode ? 'text-white-50' : 'text-muted'} style={{ fontSize: '0.7rem' }}>(Optional)</small></label>
-                                        <input name="interest" type="number" className={`form-control form-control-sm shadow-none ${darkMode ? 'bg-dark text-white border-dark' : 'bg-white text-dark border-secondary-subtle'}`} placeholder="0" value={formData.interest} onChange={handleChange} />
+                                        <label className="form-label small fw-bold">Interest (%)</label>
+                                        <input name="interest" type="number" className={`form-control form-control-sm shadow-none ${darkMode ? 'bg-dark text-white border-dark' : ''}`} placeholder="0" value={formData.interest} onChange={handleChange} />
                                     </div>
                                     <div className="mb-3">
-                                        <label className={`form-label small fw-bold ${darkMode ? 'text-light' : 'text-dark'}`}>Date Borrowed</label>
-                                        <input name="debtDate" type="date" className={`form-control form-control-sm shadow-none ${darkMode ? 'bg-dark text-white border-dark' : 'bg-white text-dark border-secondary-subtle'}`} max={today} value={formData.debtDate} onChange={handleChange} required />
+                                        <label className="form-label small fw-bold">Date Borrowed</label>
+                                        <input name="debtDate" type="date" className={`form-control form-control-sm shadow-none ${darkMode ? 'bg-dark text-white border-dark' : ''}`} max={today} value={formData.debtDate} onChange={handleChange} required />
                                     </div>
                                     <div className="mb-3">
-                                        <label className={`form-label small fw-bold ${darkMode ? 'text-light' : 'text-dark'}`}>Due Date <small className={darkMode ? 'text-white-50' : 'text-muted'} style={{ fontSize: '0.7rem' }}>(Optional)</small></label>
-                                        <input name="dueDate" type="date" className={`form-control form-control-sm shadow-none ${darkMode ? 'bg-dark border-dark' : 'bg-white border-secondary-subtle'
-                                            } ${!formData.dueDate
-                                                ? (darkMode ? 'text-white-50' : 'text-muted')
-                                                : (darkMode ? 'text-white' : 'text-dark')
-                                            }`} value={formData.dueDate} onChange={handleChange} />
+                                        <label className="form-label small fw-bold">Due Date</label>
+                                        <input name="dueDate" type="date" className={`form-control form-control-sm shadow-none ${darkMode ? 'bg-dark border-dark text-white' : ''}`} value={formData.dueDate} onChange={handleChange} />
                                     </div>
-                                    <button type="submit" className={`btn ${darkMode ? 'btn-info text-dark' : 'btn-primary'} w-100 fw-bold py-2 shadow-sm`}>
-                                        Add to Record
-                                    </button>
+                                    <button type="submit" className={`btn ${darkMode ? 'btn-info text-dark' : 'btn-primary'} w-100 fw-bold py-2 shadow-sm`}>Add to Record</button>
                                 </form>
                             </div>
                         </div>
                     </div>
 
-                    {/*Table Side*/}
+                    {/* Table Side */}
                     <div className="col-lg-9">
-                        <div className={`card shadow-sm border-0 ${darkMode ? 'bg-secondary text-white' : 'bg-white'}`}>
+                        <div className={`card shadow-sm border-0 w-100 ${darkMode ? 'bg-secondary text-white' : 'bg-white'}`}>
                             <div className="card-body p-4">
                                 <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
                                     <div className="btn-group shadow-sm">
@@ -300,33 +291,32 @@ const DebtTracker = () => {
                                         <button className={`btn btn-sm ${view === 'history' ? 'btn-primary' : 'btn-outline-primary'}`} onClick={() => setView('history')}>History</button>
                                     </div>
                                     <div className="input-group" style={{ maxWidth: '350px' }}>
-                                        <input type="text" className={`form-control shadow-none ${darkMode ? 'bg-dark text-white border-secondary' : ''}`} placeholder="Search everything..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                                        <input type="text" className={`form-control shadow-none ${darkMode ? 'bg-dark text-white border-secondary' : ''}`} placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
                                     </div>
                                 </div>
+
                                 <div className="table-responsive">
                                     <table className={`table table-hover align-middle ${darkMode ? 'table-dark' : ''}`}>
                                         <thead className={darkMode ? 'table-dark' : 'table-light border-bottom'}>
                                             <tr className="small">
-                                                <th onClick={() => requestSort('debtorName')} style={{ cursor: 'pointer', whiteSpace: 'nowrap', minWidth: '150px' }} className="text-center px-3">
+                                                <th onClick={() => requestSort('debtorName')} style={{ cursor: 'pointer', minWidth: '180px' }} className="text-start px-3">
                                                     Name & Status <span className="opacity-50">{sortConfig.key === 'debtorName' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}</span>
                                                 </th>
-                                                <th onClick={() => requestSort('amount')} style={{ cursor: 'pointer', whiteSpace: 'nowrap' }} className="text-center px-3">
+                                                <th onClick={() => requestSort('amount')} style={{ cursor: 'pointer' }} className="text-center px-2">
                                                     Base Amount <span className="opacity-50">{sortConfig.key === 'amount' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}</span>
                                                 </th>
-                                                <th onClick={() => requestSort('interest')} style={{ cursor: 'pointer', whiteSpace: 'nowrap' }} className="text-center px-3">
+                                                <th onClick={() => requestSort('interest')} style={{ cursor: 'pointer' }} className="text-center px-3">
                                                     Interest <span className="opacity-50">{sortConfig.key === 'interest' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}</span>
                                                 </th>
-                                                <th onClick={() => requestSort('debtDate')} style={{ cursor: 'pointer', whiteSpace: 'nowrap' }} className="text-center px-3">
+                                                <th onClick={() => requestSort('debtDate')} style={{ cursor: 'pointer' }} className="text-center px-3">
                                                     Borrowed <span className="opacity-50">{sortConfig.key === 'debtDate' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}</span>
                                                 </th>
-                                                {/* Dynamic Column: Due Date for Active, Date Settled for History */}
-                                                <th onClick={() => requestSort('debtDate')} style={{ cursor: 'pointer', whiteSpace: 'nowrap' }} className="text-center px-3">
-                                                    {view === 'active' ? 'Due Date' : 'Date Settled'} <span className="opacity-50">{sortConfig.key === 'debtDate' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}</span>
+                                                <th onClick={() => requestSort('dueDate')} style={{ cursor: 'pointer' }} className="text-center px-3">
+                                                    {view === 'active' ? 'Due Date' : 'Date Settled'} <span className="opacity-50">{sortConfig.key === 'dueDate' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}</span>
                                                 </th>
-                                                <th onClick={() => requestSort('totalAmount')} style={{ cursor: 'pointer', whiteSpace: 'nowrap' }} className="text-center px-3">
-                                                    Total Amount <span className="opacity-50">{sortConfig.key === 'totalAmount' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}</span>
+                                                <th onClick={() => requestSort('totalAmount')} style={{ cursor: 'pointer' }} className="text-center px-3">
+                                                    Total <span className="opacity-50">{sortConfig.key === 'totalAmount' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}</span>
                                                 </th>
-                                                {/* Extra Column for Method for History View */}
                                                 {view === 'history' && <th className="text-center px-3">Method</th>}
                                                 <th className="text-center px-3" style={{ width: '70px' }}>Action</th>
                                             </tr>
@@ -337,7 +327,6 @@ const DebtTracker = () => {
                                                     const baseAmount = parseFloat(debt.amount || 0);
                                                     const totalWithInterest = calculateTotalWithSmartInterest(debt);
                                                     const remainingBalance = totalWithInterest - (debt.amountPaid || 0);
-
                                                     const isPastDue = debt.dueDate && today > debt.dueDate;
                                                     const displayStatus = (isPastDue && debt.status !== 'Fully Paid') ? 'Overdue' : debt.status;
 
@@ -345,134 +334,62 @@ const DebtTracker = () => {
                                                         <tr key={debt._id} className={darkMode ? 'border-secondary' : ''}>
                                                             <td>
                                                                 <div className={`fw-bold ${darkMode ? 'text-light' : 'text-dark'}`}>{debt.debtorName}</div>
-                                                                <div
-                                                                    onClick={() => debt.status === 'Partially Paid' && setIsEditing(debt._id)}
-                                                                    style={{ cursor: debt.status === 'Fully Paid' ? 'default' : 'pointer', width: 'fit-content' }}
-                                                                >
+                                                                <div onClick={() => debt.status === 'Partially Paid' && setIsEditing(debt._id)} style={{ cursor: 'pointer', width: 'fit-content' }}>
                                                                     <select
-                                                                        className={`form-select form-select-sm border-0 fw-bold badge ${displayStatus === 'Overdue' ? 'bg-danger' :
-                                                                            debt.status === 'Fully Paid' ? 'bg-success' :
-                                                                                debt.status === 'Partially Paid' ? 'bg-warning text-dark' : 'bg-secondary text-white'
-                                                                            }`}
-                                                                        style={{
-                                                                            width: 'fit-content',
-                                                                            appearance: 'none',
-                                                                            textAlign: 'center',
-                                                                            pointerEvents: debt.status === 'Partially Paid' ? 'none' : 'auto',
-                                                                            backgroundColor: 'inherit',
-                                                                            color: 'inherit'
-                                                                        }}
+                                                                        className={`form-select form-select-sm border-0 fw-bold badge ${displayStatus === 'Overdue' ? 'bg-danger' : debt.status === 'Fully Paid' ? 'bg-success' : debt.status === 'Partially Paid' ? 'bg-warning text-dark' : 'bg-secondary text-white'}`}
+                                                                        style={{ width: 'fit-content', appearance: 'none', textAlign: 'center', backgroundColor: 'inherit', color: 'inherit' }}
                                                                         value={displayStatus}
                                                                         disabled={debt.status === 'Fully Paid'}
                                                                         onChange={(e) => handleStatusChange(debt._id, e.target.value, debt.amountPaid)}
                                                                     >
-                                                                        <option value="Unpaid" className={darkMode ? 'bg-dark text-white' : 'bg-white text-dark'}>Unpaid</option>
+                                                                        <option value="Pending" className={darkMode ? 'bg-dark text-white' : 'bg-white text-dark'}>Pending</option>
                                                                         <option value="Partially Paid" className={darkMode ? 'bg-dark text-white' : 'bg-white text-dark'}>Partially Paid</option>
                                                                         <option value="Fully Paid" className={darkMode ? 'bg-dark text-white' : 'bg-white text-dark'}>Fully Paid</option>
                                                                         <option value="Overdue" className={darkMode ? 'bg-dark text-white' : 'bg-white text-dark'}>Overdue</option>
                                                                     </select>
                                                                 </div>
-
                                                                 {isEditing === debt._id && (
-                                                                    <div className="mt-2 d-flex gap-1 justify-content-center animate__animated animate__fadeIn">
-                                                                        <input
-                                                                            type="number"
-                                                                            className={`form-control form-control-sm ${darkMode ? 'bg-dark text-white border-secondary' : ''}`}
-                                                                            style={{ width: '80px' }}
-                                                                            placeholder="Amt Paid"
-                                                                            autoFocus
-                                                                            value={partialInput[debt._id] || ''}
-                                                                            onChange={(e) => setPartialInput({ ...partialInput, [debt._id]: e.target.value })}
-                                                                        />
+                                                                    <div className="mt-2 d-flex gap-1 animate__animated animate__fadeIn">
+                                                                        <input type="number" className={`form-control form-control-sm ${darkMode ? 'bg-dark text-white border-secondary' : ''}`} style={{ width: '80px' }} placeholder="Amt" autoFocus value={partialInput[debt._id] || ''} onChange={(e) => setPartialInput({ ...partialInput, [debt._id]: e.target.value })} />
                                                                         <button className="btn btn-sm btn-success" onClick={async () => {
                                                                             const inputVal = parseFloat(partialInput[debt._id] || 0);
                                                                             if (inputVal <= 0) return alert("Enter valid amount");
-
                                                                             try {
-                                                                                await axios.patch(`http://localhost:5000/api/debts/${debt._id}/status`, {
-                                                                                    status: 'Partially Paid',
-                                                                                    amountPaid: (debt.amountPaid || 0) + inputVal
-                                                                                });
-                                                                                setIsEditing(null);
-                                                                                setPartialInput({ ...partialInput, [debt._id]: '' });
-                                                                                fetchDebts();
+                                                                                await axios.patch(`http://localhost:5000/api/debts/${debt._id}/status`, { status: 'Partially Paid', amountPaid: (debt.amountPaid || 0) + inputVal });
+                                                                                setIsEditing(null); setPartialInput({ ...partialInput, [debt._id]: '' }); fetchDebts();
                                                                             } catch (e) { alert("Error saving payment"); }
                                                                         }}>✓</button>
                                                                     </div>
                                                                 )}
                                                             </td>
-
                                                             <td className="fw-semibold text-center">₱{baseAmount.toLocaleString()}</td>
                                                             <td className="text-center">{debt.interest}%</td>
                                                             <td className="small text-center">{debt.debtDate}</td>
-
-                                                            {/* Dynamic Date Cell: Due Date (Active) or Date Paid (History) */}
-                                                            <td className="small text-center">
-                                                                {view === 'active' ? (debt.dueDate || 'No Due Date') : (debt.datePaid || debt.dueDate)}
-                                                            </td>
-
+                                                            <td className="small text-center">{view === 'active' ? (debt.dueDate || 'No Due Date') : (debt.datePaid || debt.dueDate)}</td>
                                                             <td className="fw-bold text-primary text-center">
-                                                                {debt.status === 'Fully Paid' ? (
-                                                                    <span className="text-decoration-line-through text-success">₱{totalWithInterest.toLocaleString()}</span>
-                                                                ) : (
-                                                                    <>
-                                                                        <div>₱{remainingBalance.toLocaleString()}</div>
-                                                                        {debt.amountPaid > 0 && <small className="text-success d-block" style={{ fontSize: '0.7rem' }}>Paid: ₱{debt.amountPaid}</small>}
-                                                                    </>
-                                                                )}
+                                                                {debt.status === 'Fully Paid' ? <span className="text-decoration-line-through text-success">₱{totalWithInterest.toLocaleString()}</span> :
+                                                                    (<><div>₱{remainingBalance.toLocaleString()}</div>{debt.amountPaid > 0 && <small className="text-success d-block" style={{ fontSize: '0.7rem' }}>Paid: ₱{debt.amountPaid}</small>}</>)}
                                                             </td>
-
-                                                            {/* New Column: Payment Method Badge (History only) */}
                                                             {view === 'history' && (
                                                                 <td className="text-center">
                                                                     {(() => {
                                                                         const currentMethod = paymentMethods.find(m => m.label === (debt.paymentMethod || 'Cash')) || paymentMethods[0];
-
                                                                         return (
-                                                                            <div style={{ width: 'fit-content', margin: '0 auto' }}>
-                                                                                <select
-                                                                                    className={`form-select form-select-sm border-0 fw-bold badge ${currentMethod.color} text-white`} // DINAGDAG: text-white
-                                                                                    style={{
-                                                                                        width: 'fit-content',
-                                                                                        appearance: 'none',
-                                                                                        textAlign: 'center',
-                                                                                        cursor: 'pointer',
-                                                                                        color: 'white !important'
-                                                                                    }}
-                                                                                    value={debt.paymentMethod || 'Cash'}
-                                                                                    onChange={(e) => handleMethodChange(debt._id, e.target.value)}
-                                                                                >
-                                                                                    {paymentMethods.map((m) => (
-                                                                                        <option
-                                                                                            key={m.label}
-                                                                                            value={m.label}
-                                                                                            className={darkMode ? 'bg-dark text-white' : 'bg-white text-dark'}
-                                                                                        >
-                                                                                            {m.label}
-                                                                                        </option>
-                                                                                    ))}
-                                                                                </select>
-                                                                            </div>
+                                                                            <select className={`form-select form-select-sm border-0 fw-bold badge ${currentMethod.color} text-white`} style={{ width: 'fit-content', margin: '0 auto', appearance: 'none', textAlign: 'center', cursor: 'pointer', color: 'white !important' }} value={debt.paymentMethod || 'Cash'} onChange={(e) => handleMethodChange(debt._id, e.target.value)}>
+                                                                                {paymentMethods.map((m) => (<option key={m.label} value={m.label} className={darkMode ? 'bg-dark text-white' : 'bg-white text-dark'}>{m.label}</option>))}
+                                                                            </select>
                                                                         );
                                                                     })()}
                                                                 </td>
                                                             )}
-
                                                             <td className="text-center px-3">
-                                                                <button
-                                                                    className="btn btn-sm btn-outline-danger border-0 p-1"
-                                                                    onClick={() => handleDelete(debt._id)}
-                                                                    title="Delete Record"
-                                                                >
-                                                                    <i className="bi bi-trash3-fill" style={{ fontSize: '1.1rem' }}></i>
-                                                                </button>
+                                                                <button className="btn btn-sm btn-outline-danger border-0 p-1" onClick={() => handleDelete(debt._id)} title="Delete Record"><i className="bi bi-trash3-fill" style={{ fontSize: '1.1rem' }}></i></button>
                                                             </td>
                                                         </tr>
                                                     );
                                                 })
                                             ) : (
-                                                <tr><td colSpan={view === 'history' ? 8 : 7}
-                                                    className={`text-center py-5 ${darkMode ? 'text-white-50 opacity-50' : 'text-muted'}`}>No debt records found.</td></tr>
+                                                <tr><td colSpan={view === 'history' ? 8 : 7} className={`text-center py-5 ${darkMode ? 'text-white-50 opacity-50' : 'text-muted'}`}>No debt records found.</td></tr>
                                             )}
                                         </tbody>
                                     </table>
