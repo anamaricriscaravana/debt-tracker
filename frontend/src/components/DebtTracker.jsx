@@ -437,7 +437,13 @@ const DebtTracker = () => {
                                                         )}
 
                                                         <td className="text-center px-3">
-                                                            <button className="btn btn-sm btn-outline-danger border-0" onClick={() => handleDelete(debt._id)}>Delete</button>
+                                                            <button
+                                                                className="btn btn-sm btn-outline-danger border-0"
+                                                                onClick={() => handleDelete(debt._id)}
+                                                                title="Delete Record"
+                                                            >
+                                                                <i className="bi bi-trash3-fill"></i>
+                                                            </button>
                                                         </td>
                                                     </tr>
                                                 );
