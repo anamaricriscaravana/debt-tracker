@@ -387,7 +387,8 @@ const DebtTracker = () => {
                                                 );
                                             })
                                         ) : (
-                                            <tr><td colSpan="7" className={`text-center py-5 ${darkMode ? 'text-white-50 opacity-50' : 'text-muted'}`}>No debt records found.</td></tr>
+                                            <tr><td colSpan={view === 'history' ? 8 : 7}
+                                            className={`text-center py-5 ${darkMode ? 'text-white-50 opacity-50' : 'text-muted'}`}>No debt records found.</td></tr>
                                         )}
                                     </tbody>
                                 </table>
