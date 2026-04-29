@@ -6,7 +6,7 @@ const DebtSchema = new mongoose.Schema({
     debtDate: { type: String, required: true },
     dueDate: { type: String },
     interest: { type: Number, default: 0 },
-    status: { type: String, enum: ['Pending', 'Partially Paid', 'Fully Paid', 'Overdue'], default: 'Pending' },
+    status: { type: String, enum: ['Unpaid', 'Partially Paid', 'Fully Paid', 'Overdue'], default: 'Pending' },
     amountPaid: { type: Number, default: 0 },
     paymentMethod: { type: String, default: 'Cash' },
     datePaid: { type: String }

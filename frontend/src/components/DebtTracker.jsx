@@ -4,7 +4,7 @@ import './DebtTracker.css';
 
 const DebtTracker = () => {
     const today = new Date().toLocaleDateString('en-CA');
-    const [formData, setFormData] = useState({ debtorName: '', amount: '', debtDate: today, dueDate: '', interest: '' });
+    const [formData, setFormData] = useState({ debtorName: '', amount: '', debtDate: today, dueDate: '', interest: '0' });
     const [debts, setDebts] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [partialInput, setPartialInput] = useState({});
@@ -146,21 +146,21 @@ const DebtTracker = () => {
             return alert("Amount must be greater than zero.");
         }
 
-        if (parseFloat(formData.interest) < 0) {
-            return alert("Interest cannot be negative.");
-        }
-
-        if (formData.dueDate && formData.dueDate < formData.debtDate) {
-            return alert("Due date cannot be earlier than the borrowed date.");
-        }
-
         try {
-            const dataToSave = { ...formData, status: 'Unpaid' };
-            await axios.post('http://localhost:5000/api/debts/add', dataToSave)
+            const dataToSave = {
+                ...formData,
+                amount: parseFloat(formData.amount),
+                status: 'Unpaid',
+                paymentMethod: 'Cash',
+                amountPaid: 0
+            };
+
+            await axios.post('http://localhost:5000/api/debts/add', dataToSave);
             await fetchDebts();
-            setFormData({ debtorName: '', amount: '', debtDate: today, dueDate: '', interest: 0 });
+
+            setFormData({ debtorName: '', amount: '', debtDate: today, dueDate: '', interest: '0' });
         } catch (error) {
-            console.error('Error adding debt:', error);
+            console.error('Error adding debt:', error.response?.data || error);
             alert("Failed to add debt. Please check your input and try again.");
         }
     };
