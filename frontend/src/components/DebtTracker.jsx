@@ -342,7 +342,7 @@ const DebtTracker = () => {
                                                                 <div className="d-flex justify-content-center mt-1">
                                                                     <div onClick={() => debt.status === 'Partially Paid' && setIsEditing(debt._id)} style={{ cursor: 'pointer', width: 'fit-content' }}>
                                                                         <select
-                                                                            className={`form-select form-select-sm border-0 fw-bold badge ${displayStatus === 'Overdue' ? 'bg-danger' : debt.status === 'Fully Paid' ? 'bg-success' : debt.status === 'Partially Paid' ? 'bg-warning text-dark' : 'bg-secondary text-white'}`}
+                                                                            className={`form-select form-select-sm border-0 fw-bold badge no-arrow ${displayStatus === 'Overdue' ? 'bg-danger' : debt.status === 'Fully Paid' ? 'bg-success' : debt.status === 'Partially Paid' ? 'bg-warning text-dark' : 'bg-secondary text-white'}`}
                                                                             style={{ width: 'fit-content', appearance: 'none', textAlign: 'center', backgroundColor: 'inherit', color: 'inherit' }}
                                                                             value={displayStatus}
                                                                             disabled={debt.status === 'Fully Paid'}
@@ -382,7 +382,7 @@ const DebtTracker = () => {
                                                                     {(() => {
                                                                         const currentMethod = paymentMethods.find(m => m.label === (debt.paymentMethod || 'Cash')) || paymentMethods[0];
                                                                         return (
-                                                                            <select className={`form-select form-select-sm border-0 fw-bold badge ${currentMethod.color} text-white`} style={{ width: 'fit-content', margin: '0 auto', appearance: 'none', textAlign: 'center', cursor: 'pointer', color: 'white !important' }} value={debt.paymentMethod || 'Cash'} onChange={(e) => handleMethodChange(debt._id, e.target.value)}>
+                                                                            <select className={`form-select form-select-sm border-0 fw-bold badge no-arrow ${currentMethod.color} text-white`} style={{ width: 'fit-content', margin: '0 auto', appearance: 'none', textAlign: 'center', cursor: 'pointer', color: 'white !important' }} value={debt.paymentMethod || 'Cash'} onChange={(e) => handleMethodChange(debt._id, e.target.value)}>
                                                                                 {paymentMethods.map((m) => (<option key={m.label} value={m.label} className={darkMode ? 'bg-dark text-white' : 'bg-white text-dark'}>{m.label}</option>))}
                                                                             </select>
                                                                         );
