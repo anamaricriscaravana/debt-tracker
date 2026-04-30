@@ -38,13 +38,13 @@ const Login = ({ setToken }) => {
 
     return (
         <Container component="main" maxWidth="xs">
-            <Box sx={{ marginTop: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <Paper elevation={3} sx={{ p: 4, width: '100%', borderRadius: 3 }}>
-                    <Typography component="h1" variant="h5" align="center" sx={{ fontWeight: 'bold', mb: 3 }}>
-                        {isRegister ? 'Create Account' : 'DebtTracker Login'}
+            <Box sx={{ marginTop: 12, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <Paper elevation={2} sx={{ p: 3, width: '100%', borderRadius: 2 }}>
+                    <Typography component="h1" variant="h6" align="center" sx={{ fontWeight: '600', mb: 2 }}>
+                        {isRegister ? 'Create an Account' : 'Login'}
                     </Typography>
 
-                    {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+                    {error && <Alert severity="error" sx={{ mb: 2, py: 0, fontsize: '0.85rem' }}>{error}</Alert>}
 
                     <Box component="form" onSubmit={handleSubmit} noValidate>
                         <TextField
@@ -53,6 +53,7 @@ const Login = ({ setToken }) => {
                             fullWidth
                             label="Username"
                             autoFocus
+                            size="small"
                             value={credentials.username}
                             onChange={(e) => setCredentials({...credentials, username: e.target.value})}
                         />
@@ -62,6 +63,7 @@ const Login = ({ setToken }) => {
                             fullWidth
                             label="Password"
                             type="password"
+                            size="small"
                             value={credentials.password}
                             onChange={(e) => setCredentials({...credentials, password: e.target.value})}
                         />
@@ -69,18 +71,18 @@ const Login = ({ setToken }) => {
                             type="submit"
                             fullWidth
                             variant="contained"
-                            sx={{ mt: 3, mb: 2, py: 1.5, fontWeight: 'bold', borderRadius: 2 }}
+                            sx={{ mt: 2, mb: 1.5, py: 1, fontsize:'0.85rem', fontWeight: '600', borderRadius: 1.5 }}
                             color={isRegister ? "success" : "primary"}
                         >
-                            {isRegister ? 'Register Now' : 'Sign In'}
+                            {isRegister ? 'Register' : 'Login'}
                         </Button>
                         
                         <Box sx={{ textAlign: 'center' }}>
                             <Link 
                                 component="button" 
-                                variant="body2" 
+                                variant="caption" 
                                 onClick={(e) => { e.preventDefault(); setIsRegister(!isRegister); }}
-                                sx={{ textDecoration: 'none', fontWeight: 'medium' }}
+                                sx={{ textDecoration: 'none', color: 'text-secondary' }}
                             >
                                 {isRegister ? "Already have an account? Login" : "Don't have an account? Register"}
                             </Link>

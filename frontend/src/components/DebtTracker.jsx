@@ -4,7 +4,7 @@ import './DebtTracker.css';
 
 const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
     const today = new Date().toLocaleDateString('en-CA');
-    const [formData, setFormData] = useState({ debtorName: '', amount: '', debtDate: today, dueDate: '', interest: '0' });
+    const [formData, setFormData] = useState({ debtorName: '', amount: '', debtDate: today, dueDate: '', interest: '' });
     const [debts, setDebts] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [partialInput, setPartialInput] = useState({});
@@ -311,7 +311,7 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
                                                                 <div className="d-flex justify-content-center mt-1">
                                                                     <div onClick={() => debt.status === 'Partially Paid' && setIsEditing(debt._id)} style={{ cursor: 'pointer', width: 'fit-content' }}>
                                                                         <select
-                                                                            className={`form-select form-select-sm border-0 fw-bold badge no-arrow ${displayStatus === 'Overdue' ? 'bg-danger' : debt.status === 'Fully Paid' ? 'bg-success' : debt.status === 'Partially Paid' ? 'bg-warning text-dark' : 'bg-secondary text-white'}`}
+                                                                            className={`form-select form-select-sm border-0 fw-bold badge no-arrow ${displayStatus === 'Overdue' ? 'bg-danger' : debt.status === 'Fully Paid' ? 'bg-success text-white' : debt.status === 'Partially Paid' ? 'bg-warning text-dark' : 'bg-secondary text-white'}`}
                                                                             style={{ width: 'fit-content', appearance: 'none', textAlign: 'center', backgroundColor: 'inherit', color: 'inherit', fontSize: '0.7rem' }}
                                                                             value={displayStatus}
                                                                             disabled={debt.status === 'Fully Paid'}
