@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './DebtTracker.css';
 
-const DebtTracker = () => {
+const DebtTracker = ({ darkMode }) => {
     const today = new Date().toLocaleDateString('en-CA');
     const [formData, setFormData] = useState({ debtorName: '', amount: '', debtDate: today, dueDate: '', interest: '0' });
     const [debts, setDebts] = useState([]);
@@ -28,13 +28,13 @@ const DebtTracker = () => {
         return () => clearInterval(timer);
     }, []);
 
-    const [darkMode, setDarkMode] = useState(() => {
-        return localStorage.getItem('debtTrackerTheme') === 'dark';
-    });
+    // const [darkMode, setDarkMode] = useState(() => {
+    //     return localStorage.getItem('debtTrackerTheme') === 'dark';
+    // });
 
-    useEffect(() => {
-        localStorage.setItem('debtTrackerTheme', darkMode ? 'dark' : 'light');
-    }, [darkMode]);
+    // useEffect(() => {
+    //     localStorage.setItem('debtTrackerTheme', darkMode ? 'dark' : 'light');
+    // }, [darkMode]);
 
     const fetchDebts = async () => {
         try {
@@ -253,9 +253,6 @@ const DebtTracker = () => {
                                 {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                             </small>
                         </div>
-                        <button className={`btn btn-sm ${darkMode ? 'btn-warning' : 'btn-light'} rounded-pill px-3 fw-bold`} onClick={() => setDarkMode(!darkMode)}>
-                            {darkMode ? '☀️' : '🌙'}
-                        </button>
                     </div>
                 </div>
             </nav>
