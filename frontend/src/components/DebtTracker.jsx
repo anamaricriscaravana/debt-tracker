@@ -249,7 +249,7 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
                                         <label className="form-label small fw-bold">Due Date</label>
                                         <input name="dueDate" type="date" className={`form-control form-control-sm shadow-none ${darkMode ? 'bg-dark border-dark text-white' : ''}`} value={formData.dueDate} onChange={handleChange} />
                                     </div>
-                                    <button type="submit" className={`btn ${darkMode ? 'btn-info text-dark' : 'btn-primary'} w-100 fw-bold py-2 shadow-sm`}>Add to Record</button>
+                                    <button type="submit" className={`btn ${darkMode ? 'btn-primary text-white' : 'btn-primary'} w-100 fw-bold py-2 shadow-sm`}>Add to Record</button>
                                 </form>
                             </div>
                         </div>
