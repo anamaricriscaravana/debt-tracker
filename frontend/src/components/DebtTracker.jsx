@@ -64,12 +64,12 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
         const search = searchTerm.toLowerCase();
         const totalWithInterest = calculateTotalWithSmartInterest(debt);
         const remainingBalance = totalWithInterest - (debt.amountPaid || 0);
+        const dueDateDisplay = debt.dueDate || "no due date";
 
         return (
             (debt.debtorName || "").toLowerCase().includes(search) ||
             (debt.status || "").toLowerCase().includes(search) ||
-            (debt.dueDate || "").toLowerCase().includes(search) ||
-            (debt.debtDate || "").toLowerCase().includes(search) ||
+            dueDateDisplay.toLowerCase().includes(search) || // DITO ANG FIX: Isama ang literal na string            (debt.debtDate || "").toLowerCase().includes(search) ||
             debt.amount.toString().includes(search) ||
             (debt.interest && debt.interest.toString().includes(search)) ||
             totalWithInterest.toString().includes(search) ||
@@ -211,7 +211,7 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
                 status: debt.status,
                 amountPaid: debt.amountPaid,
                 paymentMethod: newMethod
-            }, {headers: { 'Authorization': `Bearer ${token}` }});
+            }, { headers: { 'Authorization': `Bearer ${token}` } });
             fetchDebts();
         } catch (error) {
             console.error("Update failed:", error);
