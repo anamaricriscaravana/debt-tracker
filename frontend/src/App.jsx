@@ -125,9 +125,11 @@ function App() {
                     <IconButton onClick={handleProfileClick} sx={{ p: 0 }}>
                       <Avatar
                         sx={{
-                          bgcolor: 'secondary.main',
-                          width: 40,
-                          height: 40,
+                          bgcolor: 'tertiary.main',
+                          width: 32,
+                          height: 32,
+                          fontSize: '0.9rem',
+                          fontWeight: 'bold',
                           border: '2px solid rgba(255,255,255,0.2)'
                         }}
                       >
