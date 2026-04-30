@@ -371,7 +371,12 @@ const DebtTracker = () => {
                                                                 </div>
                                                                 {isEditing === debt._id && (
                                                                     <div className="mt-2 d-flex gap-1  justify-content-center animate__animated animate__fadeIn">
-                                                                        <input type="number" className={`form-control form-control-sm ${darkMode ? 'bg-dark text-white border-secondary' : ''}`} style={{ width: '80px' }} placeholder="Amount" autoFocus value={partialInput[debt._id] || ''} onChange={(e) => setPartialInput({ ...partialInput, [debt._id]: e.target.value })} />
+                                                                        <input type="number" className={`form-control form-control-sm ${darkMode ? 'bg-dark text-white border-secondary' : ''}`} style={{ width: '80px' }} placeholder="Amount" autoFocus value={partialInput[debt._id] || ''} onChange={(e) => setPartialInput({ ...partialInput, [debt._id]: e.target.value })}
+                                                                            onBlur={() => {
+                                                                                if (!partialInput[debt._id]) {
+                                                                                    setIsEditing(null);
+                                                                                }
+                                                                            }} />
                                                                         <button className="btn btn-sm btn-success" onClick={async () => {
                                                                             const inputVal = parseFloat(partialInput[debt._id] || 0);
                                                                             if (inputVal <= 0) return alert("Enter valid amount");
