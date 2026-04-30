@@ -152,6 +152,10 @@ const DebtTracker = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        if (formData.dueDate && formData.dueDate < formData.debtDate) {
+            return alert("Due Date cannot be earlier than Date Borrowed.");
+        }
+
         if (parseFloat(formData.amount) <= 0) {
             return alert("Amount must be greater than zero.");
         }
@@ -348,7 +352,12 @@ const DebtTracker = () => {
                                                                             disabled={debt.status === 'Fully Paid'}
                                                                             onChange={(e) => handleStatusChange(debt._id, e.target.value, debt.amountPaid)}
                                                                         >
-                                                                            <option value="Pending" className={darkMode ? 'bg-dark text-white' : 'bg-white text-dark'}>Pending</option>
+                                                                            {displayStatus !== 'Overdue' && (
+                                                                                <option value="Pending" className={darkMode ? 'bg-dark text-white' : 'bg-white text-dark'}>
+                                                                                    Pending
+                                                                                </option>
+                                                                            )}
+
                                                                             <option value="Partially Paid" className={darkMode ? 'bg-dark text-white' : 'bg-white text-dark'}>Partially Paid</option>
                                                                             <option value="Fully Paid" className={darkMode ? 'bg-dark text-white' : 'bg-white text-dark'}>Fully Paid</option>
                                                                             <option value="Overdue" className={darkMode ? 'bg-dark text-white' : 'bg-white text-dark'}>Overdue</option>
@@ -361,10 +370,34 @@ const DebtTracker = () => {
                                                                         <button className="btn btn-sm btn-success" onClick={async () => {
                                                                             const inputVal = parseFloat(partialInput[debt._id] || 0);
                                                                             if (inputVal <= 0) return alert("Enter valid amount");
+
+                                                                            const totalToPay = calculateTotalWithSmartInterest(debt);
+                                                                            const currentAmountPaid = debt.amountPaid || 0;
+                                                                            const remainingBalance = totalToPay - currentAmountPaid;
+
+                                                                            if (inputVal > remainingBalance) {
+                                                                                return alert(`Payment exceeds remaining balance! Remaining: ₱${remainingBalance.toLocaleString()}`);
+                                                                            }
+
+                                                                            const newTotalPaid = currentAmountPaid + inputVal;
+                                                                            let finalStatus = 'Partially Paid';
+
+                                                                            if (newTotalPaid >= totalToPay) {
+                                                                                finalStatus = 'Fully Paid';
+                                                                            }
+
                                                                             try {
-                                                                                await axios.patch(`http://localhost:5000/api/debts/${debt._id}/status`, { status: 'Partially Paid', amountPaid: (debt.amountPaid || 0) + inputVal });
-                                                                                setIsEditing(null); setPartialInput({ ...partialInput, [debt._id]: '' }); fetchDebts();
-                                                                            } catch (e) { alert("Error saving payment"); }
+                                                                                await axios.patch(`http://localhost:5000/api/debts/${debt._id}/status`, {
+                                                                                    status: finalStatus,
+                                                                                    amountPaid: newTotalPaid,
+                                                                                    datePaid: finalStatus === 'Fully Paid' ? today : null
+                                                                                });
+                                                                                setIsEditing(null);
+                                                                                setPartialInput({ ...partialInput, [debt._id]: '' });
+                                                                                fetchDebts();
+                                                                            } catch (e) {
+                                                                                alert("Error saving payment");
+                                                                            }
                                                                         }}>✓</button>
                                                                     </div>
                                                                 )}
