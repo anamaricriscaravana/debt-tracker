@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './DebtTracker.css';
 
-const DebtTracker = ({ darkMode }) => {
+const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
     const today = new Date().toLocaleDateString('en-CA');
     const [formData, setFormData] = useState({ debtorName: '', amount: '', debtDate: today, dueDate: '', interest: '0' });
     const [debts, setDebts] = useState([]);
@@ -10,7 +10,6 @@ const DebtTracker = ({ darkMode }) => {
     const [partialInput, setPartialInput] = useState({});
     const [sortConfig, setSortConfig] = useState({ key: 'debtorName', direction: 'asc' });
     const [isEditing, setIsEditing] = useState(null);
-    const [currentTime, setCurrentTime] = useState(new Date());
     const [view, setView] = useState('active');
 
     const paymentMethods = [
@@ -19,22 +18,6 @@ const DebtTracker = ({ darkMode }) => {
         { label: 'Bank Transfer', color: 'bg-info text-dark' },
         { label: 'Others', color: 'bg-secondary' }
     ];
-
-    useEffect(() => {
-        const timer = setInterval(() => {
-            setCurrentTime(new Date());
-        }, 1000);
-
-        return () => clearInterval(timer);
-    }, []);
-
-    // const [darkMode, setDarkMode] = useState(() => {
-    //     return localStorage.getItem('debtTrackerTheme') === 'dark';
-    // });
-
-    // useEffect(() => {
-    //     localStorage.setItem('debtTrackerTheme', darkMode ? 'dark' : 'light');
-    // }, [darkMode]);
 
     const fetchDebts = async () => {
         try {
@@ -51,7 +34,6 @@ const DebtTracker = ({ darkMode }) => {
 
     const calculateTotalWithSmartInterest = (debt) => {
         if (!debt) return 0;
-
         const baseAmount = parseFloat(debt.amount || 0);
         const interestVal = parseFloat(debt.interest || 0);
         const amountPaid = parseFloat(debt.amountPaid || 0);
@@ -74,7 +56,6 @@ const DebtTracker = ({ darkMode }) => {
     const filteredDebts = debts.filter(debt => {
         if (!debt) return false;
         const search = searchTerm.toLowerCase();
-
         const totalWithInterest = calculateTotalWithSmartInterest(debt);
         const remainingBalance = totalWithInterest - (debt.amountPaid || 0);
 
@@ -100,7 +81,6 @@ const DebtTracker = ({ darkMode }) => {
 
     const sortedDebts = [...filteredDebts].sort((a, b) => {
         let aValue, bValue;
-
         if (sortConfig.key === 'totalAmount') {
             aValue = calculateTotalWithSmartInterest(a) - (a.amountPaid || 0);
             bValue = calculateTotalWithSmartInterest(b) - (b.amountPaid || 0);
@@ -108,12 +88,10 @@ const DebtTracker = ({ darkMode }) => {
             aValue = a[sortConfig.key];
             bValue = b[sortConfig.key];
         }
-
         if (['amount', 'interest'].includes(sortConfig.key)) {
             aValue = parseFloat(aValue || 0);
             bValue = parseFloat(bValue || 0);
         }
-
         if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
         if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
         return 0;
@@ -137,6 +115,11 @@ const DebtTracker = ({ darkMode }) => {
         }
     }, 0);
 
+    useEffect(() => {
+        setHeaderTotal(totalDebt);
+        setHeaderView(view);
+    }, [totalDebt, view, setHeaderTotal, setHeaderView]);
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
@@ -156,15 +139,12 @@ const DebtTracker = ({ darkMode }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         if (formData.dueDate && formData.dueDate < formData.debtDate) {
             return alert("Due Date cannot be earlier than Date Borrowed.");
         }
-
         if (parseFloat(formData.amount) <= 0) {
             return alert("Amount must be greater than zero.");
         }
-
         try {
             const dataToSave = {
                 ...formData,
@@ -173,10 +153,8 @@ const DebtTracker = ({ darkMode }) => {
                 paymentMethod: 'Cash',
                 amountPaid: 0
             };
-
             await axios.post('http://localhost:5000/api/debts/add', dataToSave);
             await fetchDebts();
-
             setFormData({ debtorName: '', amount: '', debtDate: today, dueDate: '', interest: '0' });
         } catch (error) {
             console.error('Error adding debt:', error.response?.data || error);
@@ -187,24 +165,19 @@ const DebtTracker = ({ darkMode }) => {
     const handleStatusChange = async (id, newStatus, amount = 0) => {
         const debt = debts.find(d => d._id === id);
         if (!debt) return;
-
         if (newStatus === 'Partially Paid') {
             setIsEditing(id);
             return;
         }
-
         const totalWithInterest = calculateTotalWithSmartInterest(debt);
-
         let updateData = {
             status: newStatus,
             amountPaid: newStatus === 'Fully Paid' ? totalWithInterest : (newStatus === 'Pending' ? 0 : debt.amountPaid)
         };
-
         if (newStatus === 'Fully Paid') {
             updateData.datePaid = new Date().toLocaleDateString('en-CA');
             updateData.paymentMethod = 'Cash';
         }
-
         try {
             await axios.patch(`http://localhost:5000/api/debts/${id}/status`, updateData);
             setIsEditing(null);
@@ -217,7 +190,6 @@ const DebtTracker = ({ darkMode }) => {
     const handleMethodChange = async (id, newMethod) => {
         const debt = debts.find(d => d._id === id);
         if (!debt) return;
-
         try {
             await axios.patch(`http://localhost:5000/api/debts/${id}/status`, {
                 status: debt.status,
@@ -233,36 +205,13 @@ const DebtTracker = ({ darkMode }) => {
 
     return (
         <div className={`min-vh-100 ${darkMode ? 'bg-dark text-white' : 'bg-light'} w-100 overflow-hidden transition-all`}>
-            {/* Navbar */}
-            <nav className={`navbar ${darkMode ? 'navbar-dark bg-black' : 'navbar-dark bg-primary'} shadow-sm sticky-top w-100`}>
-                <div className="container-fluid px-4">
-                    <span className="navbar-brand fw-bold fs-4">DEBT TRACKER</span>
-                    <div className="d-flex align-items-center text-white gap-3 ms-auto">
-                        <div className="text-end">
-                            <small className="d-block opacity-75" style={{ fontSize: '0.7rem' }}>
-                                {view === 'active' ? 'Active Balance' : 'Total Settled'}
-                            </small>
-                            <span className="fw-bold fs-5">₱{totalDebt.toLocaleString()}</span>
-                        </div>
-                        <div className="vr mx-2 opacity-50" style={{ height: '30px' }}></div>
-                        <div className="px-3 d-none d-md-block text-center">
-                            <div className="small fw-bold" style={{ fontSize: '0.8rem' }}>
-                                {currentTime.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                            </div>
-                            <small className="opacity-75" style={{ fontSize: '0.7rem' }}>
-                                {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-                            </small>
-                        </div>
-                    </div>
-                </div>
-            </nav>
+            {/* NOTE: TINANGGAL NA ANG NAVBAR DITO DAHIL NASA APP.JSX NA ANG HEADER */}
 
-            {/* Main Content */}
             <div className="container-fluid px-md-5 px-3 py-4">
                 <div className="row g-4">
                     {/* Record Form Side */}
                     <div className="col-lg-3">
-                        <div className={`card shadow-sm border-0 sticky-lg-top ${darkMode ? 'bg-secondary text-white shadow-lg' : 'bg-white'}`} style={{ top: '90px' }}>
+                        <div className={`card shadow-sm border-0 sticky-lg-top ${darkMode ? 'bg-secondary text-white shadow-lg' : 'bg-white'}`} style={{ top: '20px' }}>
                             <div className="card-body p-4">
                                 <h5 className={`fw-bold mb-4 border-bottom pb-2 ${darkMode ? 'border-dark text-light' : 'text-dark'}`}>Record New Debt</h5>
                                 <form onSubmit={handleSubmit}>
@@ -355,11 +304,8 @@ const DebtTracker = ({ darkMode }) => {
                                                                             onChange={(e) => handleStatusChange(debt._id, e.target.value, debt.amountPaid)}
                                                                         >
                                                                             {displayStatus !== 'Overdue' && (
-                                                                                <option value="Pending" className={darkMode ? 'bg-dark text-white' : 'bg-white text-dark'}>
-                                                                                    Pending
-                                                                                </option>
+                                                                                <option value="Pending" className={darkMode ? 'bg-dark text-white' : 'bg-white text-dark'}>Pending</option>
                                                                             )}
-
                                                                             <option value="Partially Paid" className={darkMode ? 'bg-dark text-white' : 'bg-white text-dark'}>Partially Paid</option>
                                                                             <option value="Fully Paid" className={darkMode ? 'bg-dark text-white' : 'bg-white text-dark'}>Fully Paid</option>
                                                                             <option value="Overdue" className={darkMode ? 'bg-dark text-white' : 'bg-white text-dark'}>Overdue</option>
@@ -367,45 +313,24 @@ const DebtTracker = ({ darkMode }) => {
                                                                     </div>
                                                                 </div>
                                                                 {isEditing === debt._id && (
-                                                                    <div className="mt-2 d-flex gap-1  justify-content-center animate__animated animate__fadeIn">
+                                                                    <div className="mt-2 d-flex gap-1 justify-content-center animate__animated animate__fadeIn">
                                                                         <input type="number" className={`form-control form-control-sm ${darkMode ? 'bg-dark text-white border-secondary' : ''}`} style={{ width: '80px' }} placeholder="Amount" autoFocus value={partialInput[debt._id] || ''} onChange={(e) => setPartialInput({ ...partialInput, [debt._id]: e.target.value })}
-                                                                            onBlur={() => {
-                                                                                if (!partialInput[debt._id]) {
-                                                                                    setIsEditing(null);
-                                                                                }
-                                                                            }} />
+                                                                            onBlur={() => { if (!partialInput[debt._id]) setIsEditing(null); }} />
                                                                         <button className="btn btn-sm btn-success" onClick={async () => {
                                                                             const inputVal = parseFloat(partialInput[debt._id] || 0);
                                                                             if (inputVal <= 0) return alert("Enter valid amount");
-
                                                                             const totalToPay = calculateTotalWithSmartInterest(debt);
                                                                             const currentAmountPaid = debt.amountPaid || 0;
                                                                             const remainingBalance = totalToPay - currentAmountPaid;
-
-                                                                            if (inputVal > remainingBalance) {
-                                                                                return alert(`Payment exceeds remaining balance! Remaining: ₱${remainingBalance.toLocaleString()}`);
-                                                                            }
-
+                                                                            if (inputVal > remainingBalance) return alert(`Payment exceeds balance!`);
                                                                             const newTotalPaid = (debt.amountPaid || 0) + inputVal;
-
-                                                                            let finalStatus;
-                                                                            if (newTotalPaid >= totalWithInterest) {
-                                                                                finalStatus = 'Fully Paid';
-                                                                            } else {
-                                                                                finalStatus = debt.status === 'Overdue' ? 'Overdue' : 'Partially Paid';
-                                                                            }
+                                                                            let finalStatus = newTotalPaid >= totalWithInterest ? 'Fully Paid' : (debt.status === 'Overdue' ? 'Overdue' : 'Partially Paid');
                                                                             try {
-                                                                                await axios.patch(`http://localhost:5000/api/debts/${debt._id}/status`, {
-                                                                                    status: finalStatus,
-                                                                                    amountPaid: newTotalPaid,
-                                                                                    datePaid: finalStatus === 'Fully Paid' ? today : null
-                                                                                });
+                                                                                await axios.patch(`http://localhost:5000/api/debts/${debt._id}/status`, { status: finalStatus, amountPaid: newTotalPaid, datePaid: finalStatus === 'Fully Paid' ? today : null });
                                                                                 setIsEditing(null);
                                                                                 setPartialInput({ ...partialInput, [debt._id]: '' });
                                                                                 fetchDebts();
-                                                                            } catch (e) {
-                                                                                alert("Error saving payment");
-                                                                            }
+                                                                            } catch (e) { alert("Error saving payment"); }
                                                                         }}>✓</button>
                                                                     </div>
                                                                 )}
@@ -423,7 +348,7 @@ const DebtTracker = ({ darkMode }) => {
                                                                     {(() => {
                                                                         const currentMethod = paymentMethods.find(m => m.label === (debt.paymentMethod || 'Cash')) || paymentMethods[0];
                                                                         return (
-                                                                            <select className={`form-select form-select-sm border-0 fw-bold badge no-arrow ${currentMethod.color} text-white`} style={{ width: 'fit-content', margin: '0 auto', appearance: 'none', textAlign: 'center', cursor: 'pointer', color: 'white !important' }} value={debt.paymentMethod || 'Cash'} onChange={(e) => handleMethodChange(debt._id, e.target.value)}>
+                                                                            <select className={`form-select form-select-sm border-0 fw-bold badge no-arrow ${currentMethod.color} text-white`} style={{ width: 'fit-content', margin: '0 auto', appearance: 'none', textAlign: 'center', cursor: 'pointer' }} value={debt.paymentMethod || 'Cash'} onChange={(e) => handleMethodChange(debt._id, e.target.value)}>
                                                                                 {paymentMethods.map((m) => (<option key={m.label} value={m.label} className={darkMode ? 'bg-dark text-white' : 'bg-white text-dark'}>{m.label}</option>))}
                                                                             </select>
                                                                         );

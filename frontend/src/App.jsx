@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import {
@@ -23,9 +23,18 @@ import Login from './components/Login';
 function App() {
   const [token, setToken] = useState(localStorage.getItem('token'));
   const [mode, setMode] = useState('light');
+  const [totalDebt, setTotalDebt] = useState(0);
+  const [currentView, setCurrentView] = useState('active');
+  const [currentTime, setCurrentTime] = useState(new Date());
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Theme Configuration
   const theme = useMemo(
     () =>
       createTheme({
@@ -64,15 +73,42 @@ function App() {
       <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
 
         {token && (
-          <AppBar position="static" sx={{ bgcolor: mode === 'dark' ? '#000000' : '#007bff' }}>
+          <AppBar 
+            position="static" 
+            sx={{ bgcolor: mode === 'dark' ? '#000000' : '#007bff', transition: 'background-color 0.3s' }}
+          >
             <Toolbar sx={{ justifyContent: 'space-between', px: 4 }}>
+              {/* Brand Name */}
               <Typography variant="h5" sx={{ fontWeight: '900', letterSpacing: '1px', color: '#fff' }}>
                 DEBT TRACKER
               </Typography>
 
+              {/* Synchronized Info: Balance and Time */}
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, ml: 'auto', mr: 2 }}>
+                <Box sx={{ textAlign: 'right', color: '#fff' }}>
+                  <Typography variant="caption" sx={{ display: 'block', opacity: 0.7, fontSize: '0.65rem' }}>
+                    {currentView === 'active' ? 'Active Balance' : 'Total Settled'}
+                  </Typography>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', lineHeight: 1 }}>
+                    ₱{totalDebt.toLocaleString()}
+                  </Typography>
+                </Box>
+
+                <div style={{ height: '30px', width: '1px', backgroundColor: 'rgba(255,255,255,0.3)' }}></div>
+
+                <Box sx={{ textAlign: 'center', color: '#fff', minWidth: '100px' }}>
+                  <Typography sx={{ fontWeight: 'bold', fontSize: '0.8rem' }}>
+                    {currentTime.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </Typography>
+                  <Typography sx={{ opacity: 0.7, fontSize: '0.7rem' }}>
+                    {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                  </Typography>
+                </Box>
+              </Box>
+
+              {/* Controls: Theme Toggle and Profile */}
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                {/* Fixed reference to toggleColorMode */}
-                <IconButton onClick={toggleColorMode} color="inherit" sx={{ mr: 1 }}>
+                <IconButton onClick={toggleColorMode} color="inherit">
                   {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
                 </IconButton>
 
@@ -91,6 +127,7 @@ function App() {
                   </IconButton>
                 </Tooltip>
 
+                {/* Profile Dropdown Menu */}
                 <Menu
                   anchorEl={anchorEl}
                   open={open}
@@ -139,11 +176,16 @@ function App() {
           </AppBar>
         )}
 
+        {/* Main Content Area */}
         <Box sx={{ flexGrow: 1 }}>
           {!token ? (
             <Login setToken={setToken} />
           ) : (
-            <DebtTracker darkMode={mode === 'dark'} />
+            <DebtTracker 
+              darkMode={mode === 'dark'} 
+              setHeaderTotal={setTotalDebt}
+              setHeaderView={setCurrentView}
+            />
           )}
         </Box>
       </Box>
