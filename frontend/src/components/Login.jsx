@@ -56,7 +56,18 @@ const Login = ({ setToken, setUsername }) => {
     return (
         <Container component="main" maxWidth="xs">
             <Box sx={{ marginTop: 12, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <Paper elevation={2} sx={{ p: 3, width: '100%', borderRadius: 2 }}>
+                <Paper
+                    elevation={2}
+                    sx={{
+                        p: 3,
+                        width: '100%',
+                        borderRadius: 2,
+                        minHeight: '450px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center'
+                    }}
+                >
                     <Typography component="h1" variant="h6" align="center" sx={{ fontWeight: '600', mb: 2 }}>
                         {isRegister ? 'Create an Account' : 'Login'}
                     </Typography>
