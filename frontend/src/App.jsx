@@ -73,8 +73,8 @@ function App() {
       <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
 
         {token && (
-          <AppBar 
-            position="static" 
+          <AppBar
+            position="static"
             sx={{ bgcolor: mode === 'dark' ? '#000000' : '#007bff', transition: 'background-color 0.3s' }}
           >
             <Toolbar sx={{ justifyContent: 'space-between', px: 4 }}>
@@ -108,10 +108,12 @@ function App() {
 
               {/* Controls: Theme Toggle and Profile */}
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <IconButton onClick={toggleColorMode} color="inherit">
-                  {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
-                </IconButton>
-
+                <Tooltip title={mode === 'dark' ? "Switch to Light Mode" : "Switch to Dark Mode"} arrow>
+                  <IconButton onClick={toggleColorMode} color="inherit">
+                    {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+                  </IconButton>
+                </Tooltip>
+                
                 <Tooltip title="Account settings">
                   <IconButton onClick={handleProfileClick} sx={{ p: 0 }}>
                     <Avatar
@@ -181,8 +183,8 @@ function App() {
           {!token ? (
             <Login setToken={setToken} />
           ) : (
-            <DebtTracker 
-              darkMode={mode === 'dark'} 
+            <DebtTracker
+              darkMode={mode === 'dark'}
               setHeaderTotal={setTotalDebt}
               setHeaderView={setCurrentView}
             />
