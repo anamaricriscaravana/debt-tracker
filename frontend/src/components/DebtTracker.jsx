@@ -221,13 +221,11 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
 
     return (
         <div className={`min-vh-100 ${darkMode ? 'bg-dark text-white' : 'bg-light'} w-100 overflow-hidden transition-all`}>
-            {/* NOTE: TINANGGAL NA ANG NAVBAR DITO DAHIL NASA APP.JSX NA ANG HEADER */}
-
-            <div className="container-fluid px-md-5 px-3 py-4">
+            <div className="container-fluid px-md-4 px-2 py-4">
                 <div className="row g-4">
-                    {/* Record Form Side */}
-                    <div className="col-lg-3">
-                        <div className={`card shadow-sm border-0 sticky-lg-top ${darkMode ? 'bg-secondary text-white shadow-lg' : 'bg-white'}`} style={{ top: '20px' }}>
+                    {/* Record Form Side: xxl-3 breakpoint para lumuwag sa 1227px */}
+                    <div className="col-12 col-xxl-3">
+                        <div className={`card shadow-sm border-0 sticky-xxl-top ${darkMode ? 'bg-secondary text-white shadow-lg' : 'bg-white'}`} style={{ top: '20px' }}>
                             <div className="card-body p-4">
                                 <h5 className={`fw-bold mb-4 border-bottom pb-2 ${darkMode ? 'border-dark text-light' : 'text-dark'}`}>Record New Debt</h5>
                                 <form onSubmit={handleSubmit}>
@@ -257,10 +255,10 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
                         </div>
                     </div>
 
-                    {/* Table Side */}
-                    <div className="col-lg-9">
+                    {/* Table Side: col-xxl-9 para full width sa 1227px */}
+                    <div className="col-12 col-xxl-9">
                         <div className={`card shadow-sm border-0 w-100 ${darkMode ? 'bg-secondary text-white' : 'bg-white'}`}>
-                            <div className="card-body p-4">
+                            <div className="card-body p-2 p-md-4">
                                 <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
                                     <div className="btn-group shadow-sm">
                                         <button className={`btn btn-sm ${view === 'active' ? 'btn-primary' : 'btn-outline-primary'}`} onClick={() => setView('active')}>Active List</button>
@@ -271,29 +269,29 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
                                     </div>
                                 </div>
 
-                                <div className="table-responsive">
-                                    <table className={`table table-hover align-middle ${darkMode ? 'table-dark' : ''}`}>
+                                <div className="table-responsive" style={{ borderRadius: '8px' }}>
+                                    <table className={`table table-hover align-middle mb-0 ${darkMode ? 'table-dark' : ''}`}>
                                         <thead className={darkMode ? 'table-dark' : 'table-light border-bottom'}>
-                                            <tr className="small">
-                                                <th onClick={() => requestSort('debtorName')} style={{ cursor: 'pointer', minWidth: '180px' }} className="text-center px-3">
+                                            <tr className="small text-nowrap">
+                                                <th onClick={() => requestSort('debtorName')} style={{ cursor: 'pointer', minWidth: '150px' }} className="text-center px-3">
                                                     Name & Status <span className="opacity-50">{sortConfig.key === 'debtorName' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}</span>
                                                 </th>
                                                 <th onClick={() => requestSort('amount')} style={{ cursor: 'pointer' }} className="text-center px-2">
                                                     Base Amount <span className="opacity-50">{sortConfig.key === 'amount' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}</span>
                                                 </th>
-                                                <th onClick={() => requestSort('interest')} style={{ cursor: 'pointer' }} className="text-center px-3">
+                                                <th onClick={() => requestSort('interest')} style={{ cursor: 'pointer' }} className="text-center px-2">
                                                     Interest <span className="opacity-50">{sortConfig.key === 'interest' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}</span>
                                                 </th>
-                                                <th onClick={() => requestSort('debtDate')} style={{ cursor: 'pointer' }} className="text-center px-3">
+                                                <th onClick={() => requestSort('debtDate')} style={{ cursor: 'pointer' }} className="text-center px-2">
                                                     Borrowed <span className="opacity-50">{sortConfig.key === 'debtDate' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}</span>
                                                 </th>
-                                                <th onClick={() => requestSort('dueDate')} style={{ cursor: 'pointer' }} className="text-center px-3">
+                                                <th onClick={() => requestSort('dueDate')} style={{ cursor: 'pointer' }} className="text-center px-2">
                                                     {view === 'active' ? 'Due Date' : 'Date Settled'} <span className="opacity-50">{sortConfig.key === 'dueDate' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}</span>
                                                 </th>
                                                 <th onClick={() => requestSort('totalAmount')} style={{ cursor: 'pointer' }} className="text-center px-3">
                                                     Total <span className="opacity-50">{sortConfig.key === 'totalAmount' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '↕'}</span>
                                                 </th>
-                                                {view === 'history' && <th className="text-center px-3">Method</th>}
+                                                {view === 'history' && <th className="text-center px-3" style={{ minWidth: '130px' }}>Method</th>}
                                                 <th className="text-center px-3" style={{ width: '70px' }}>Action</th>
                                             </tr>
                                         </thead>
@@ -309,12 +307,12 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
                                                     return (
                                                         <tr key={debt._id} className={darkMode ? 'border-secondary' : ''}>
                                                             <td className="text-center">
-                                                                <div className={`fw-bold ${darkMode ? 'text-light' : 'text-dark'}`}>{debt.debtorName}</div>
+                                                                <div className={`fw-bold small ${darkMode ? 'text-light' : 'text-dark'}`}>{debt.debtorName}</div>
                                                                 <div className="d-flex justify-content-center mt-1">
                                                                     <div onClick={() => debt.status === 'Partially Paid' && setIsEditing(debt._id)} style={{ cursor: 'pointer', width: 'fit-content' }}>
                                                                         <select
                                                                             className={`form-select form-select-sm border-0 fw-bold badge no-arrow ${displayStatus === 'Overdue' ? 'bg-danger' : debt.status === 'Fully Paid' ? 'bg-success' : debt.status === 'Partially Paid' ? 'bg-warning text-dark' : 'bg-secondary text-white'}`}
-                                                                            style={{ width: 'fit-content', appearance: 'none', textAlign: 'center', backgroundColor: 'inherit', color: 'inherit' }}
+                                                                            style={{ width: 'fit-content', appearance: 'none', textAlign: 'center', backgroundColor: 'inherit', color: 'inherit', fontSize: '0.7rem' }}
                                                                             value={displayStatus}
                                                                             disabled={debt.status === 'Fully Paid'}
                                                                             onChange={(e) => handleStatusChange(debt._id, e.target.value, debt.amountPaid)}
@@ -330,9 +328,9 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
                                                                 </div>
                                                                 {isEditing === debt._id && (
                                                                     <div className="mt-2 d-flex gap-1 justify-content-center animate__animated animate__fadeIn">
-                                                                        <input type="number" className={`form-control form-control-sm ${darkMode ? 'bg-dark text-white border-secondary' : ''}`} style={{ width: '80px' }} placeholder="Amount" autoFocus value={partialInput[debt._id] || ''} onChange={(e) => setPartialInput({ ...partialInput, [debt._id]: e.target.value })}
+                                                                        <input type="number" className={`form-control form-control-sm ${darkMode ? 'bg-dark text-white border-secondary' : ''}`} style={{ width: '60px', fontSize: '0.75rem' }} placeholder="Amt" autoFocus value={partialInput[debt._id] || ''} onChange={(e) => setPartialInput({ ...partialInput, [debt._id]: e.target.value })}
                                                                             onBlur={() => { if (!partialInput[debt._id]) setIsEditing(null); }} />
-                                                                        <button className="btn btn-sm btn-success" onClick={async () => {
+                                                                        <button className="btn btn-sm btn-success py-0 px-2" onClick={async () => {
                                                                             const inputVal = parseFloat(partialInput[debt._id] || 0);
                                                                             if (inputVal <= 0) return alert("Enter valid amount");
                                                                             const totalToPay = calculateTotalWithSmartInterest(debt);
@@ -361,34 +359,34 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
                                                                     </div>
                                                                 )}
                                                             </td>
-                                                            <td className="fw-semibold text-center">₱{baseAmount.toLocaleString()}</td>
-                                                            <td className="text-center">{debt.interest}%</td>
-                                                            <td className="small text-center">{debt.debtDate}</td>
-                                                            <td className="small text-center">{view === 'active' ? (debt.dueDate || 'No Due Date') : (debt.datePaid || debt.dueDate)}</td>
-                                                            <td className="fw-bold text-primary text-center">
+                                                            <td className="fw-semibold text-center small">₱{baseAmount.toLocaleString()}</td>
+                                                            <td className="text-center small">{debt.interest}%</td>
+                                                            <td className="text-center small">{debt.debtDate}</td>
+                                                            <td className="text-center small">{view === 'active' ? (debt.dueDate || 'No Due Date') : (debt.datePaid || debt.dueDate)}</td>
+                                                            <td className="fw-bold text-primary text-center small text-nowrap">
                                                                 {debt.status === 'Fully Paid' ? <span className="text-success">₱{totalWithInterest.toLocaleString()}</span> :
-                                                                    (<><div>₱{remainingBalance.toLocaleString()}</div>{debt.amountPaid > 0 && <small className="text-success d-block" style={{ fontSize: '0.7rem' }}>Paid: ₱{debt.amountPaid}</small>}</>)}
+                                                                    (<><div>₱{remainingBalance.toLocaleString()}</div>{debt.amountPaid > 0 && <small className="text-success d-block" style={{ fontSize: '0.65rem' }}>Paid: ₱{debt.amountPaid}</small>}</>)}
                                                             </td>
                                                             {view === 'history' && (
-                                                                <td className="text-center">
+                                                                <td className="text-center px-1">
                                                                     {(() => {
                                                                         const currentMethod = paymentMethods.find(m => m.label === (debt.paymentMethod || 'Cash')) || paymentMethods[0];
                                                                         return (
-                                                                            <select className={`form-select form-select-sm border-0 fw-bold badge no-arrow ${currentMethod.color} text-white`} style={{ width: 'fit-content', margin: '0 auto', appearance: 'none', textAlign: 'center', cursor: 'pointer' }} value={debt.paymentMethod || 'Cash'} onChange={(e) => handleMethodChange(debt._id, e.target.value)}>
+                                                                            <select className={`form-select form-select-sm border-0 fw-bold badge no-arrow ${currentMethod.color} text-white`} style={{ width: 'fit-content', margin: '0 auto', appearance: 'none', textAlign: 'center', cursor: 'pointer', fontSize: '0.65rem', padding: '0.2rem 0.4rem' }} value={debt.paymentMethod || 'Cash'} onChange={(e) => handleMethodChange(debt._id, e.target.value)}>
                                                                                 {paymentMethods.map((m) => (<option key={m.label} value={m.label} className={darkMode ? 'bg-dark text-white' : 'bg-white text-dark'}>{m.label}</option>))}
                                                                             </select>
                                                                         );
                                                                     })()}
                                                                 </td>
                                                             )}
-                                                            <td className="text-center px-3">
-                                                                <button className="btn btn-sm btn-outline-danger border-0 p-1" onClick={() => handleDelete(debt._id)} title="Delete Record"><i className="bi bi-trash3-fill" style={{ fontSize: '1.1rem' }}></i></button>
+                                                            <td className="text-center">
+                                                                <button className="btn btn-sm btn-outline-danger border-0 p-1" onClick={() => handleDelete(debt._id)} title="Delete Record"><i className="bi bi-trash3-fill"></i></button>
                                                             </td>
                                                         </tr>
                                                     );
                                                 })
                                             ) : (
-                                                <tr><td colSpan={view === 'history' ? 8 : 7} className={`text-center py-5 ${darkMode ? 'text-white-50 opacity-50' : 'text-muted'}`}>No debt records found.</td></tr>
+                                                <tr><td colSpan={view === 'history' ? 8 : 7} className={`text-center py-5 ${darkMode ? 'text-white-50 opacity-50' : 'text-muted'}`}>No records found.</td></tr>
                                             )}
                                         </tbody>
                                     </table>
