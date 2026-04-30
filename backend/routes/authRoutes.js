@@ -7,6 +7,8 @@ const User = require('../models/User');
 router.post('/register', async (req, res) => {
     try {
         const { username, password } = req.body;
+        let userExists = await User.findOne({ username });
+        if (userExists) return res.status(400).json({ error: "User already exists" });
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = new User({ username, password: hashedPassword });
         await newUser.save();
@@ -23,9 +25,25 @@ router.post('/login', async (req, res) => {
         if (!user || !(await bcrypt.compare(password, user.password))) {
             return res.status(400).json({ message: "Invalid credentials" });
         }
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
-        res.json({ token, username: user.username });
+
+        const payload = {
+            user: {
+                id: user._id
+            }
+        };
+
+        jwt.sign(
+            payload,
+            process.env.JWT_SECRET,
+            { expiresIn: '1d' },
+            (err, token) => {
+                if (err) throw err;
+                res.json({ token, username: user.username });
+            }
+        );
+
     } catch (err) {
+        console.error(err.message);
         res.status(500).json({ error: "Login failed" });
     }
 });

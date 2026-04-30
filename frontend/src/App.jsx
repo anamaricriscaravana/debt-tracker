@@ -21,7 +21,7 @@ import Login from './components/Login';
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem('token'));
-  const [mode, setMode] = useState(() => {return localStorage.getItem('appTheme') || 'light';}); 
+  const [mode, setMode] = useState(() => { return localStorage.getItem('appTheme') || 'light'; });
   const [totalDebt, setTotalDebt] = useState(0);
   const [currentView, setCurrentView] = useState('active');
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -31,7 +31,7 @@ function App() {
   useEffect(() => {
     localStorage.setItem('appTheme', mode);
   }, [mode]);
-  
+
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
@@ -145,7 +145,24 @@ function App() {
                     anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
                     PaperProps={{
                       elevation: 3,
-                      sx: { mt: 1.5, minWidth: 180, borderRadius: 2 },
+                      sx: {
+                        mt: 1.5,
+                        minWidth: 180,
+                        borderRadius: 2,
+                        overflow: 'visible',
+                        '&::before': {
+                          content: '""',
+                          display: 'block',
+                          position: 'absolute',
+                          top: 0,
+                          right: 14,
+                          width: 10,
+                          height: 10,
+                          bgcolor: 'background.paper',
+                          transform: 'translateY(-50%) rotate(45deg)',
+                          zIndex: 0,
+                        },
+                      },
                     }}
                   >
                     <Box sx={{ px: 2, py: 1 }}>

@@ -21,10 +21,16 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
 
     const fetchDebts = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/debts/all');
+            const token = localStorage.getItem('token');
+            const response = await axios.get('http://localhost:5000/api/debts/all', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
             setDebts(response.data || []);
         } catch (error) {
             console.error('Error fetching debts:', error);
+            if (error.response?.status === 401) {
+                alert("Session expired. Please login again.");
+            }
         }
     };
 
@@ -128,7 +134,10 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this debt record?')) {
             try {
-                await axios.delete(`http://localhost:5000/api/debts/${id}`);
+                const token = localStorage.getItem('token');
+                await axios.delete(`http://localhost:5000/api/debts/${id}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
                 await fetchDebts();
             } catch (error) {
                 console.error('Error deleting debt:', error);
@@ -146,6 +155,7 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
             return alert("Amount must be greater than zero.");
         }
         try {
+            const token = localStorage.getItem('token');
             const dataToSave = {
                 ...formData,
                 amount: parseFloat(formData.amount),
@@ -153,7 +163,9 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
                 paymentMethod: 'Cash',
                 amountPaid: 0
             };
-            await axios.post('http://localhost:5000/api/debts/add', dataToSave);
+            await axios.post('http://localhost:5000/api/debts/add', dataToSave, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
             await fetchDebts();
             setFormData({ debtorName: '', amount: '', debtDate: today, dueDate: '', interest: '0' });
         } catch (error) {
@@ -169,17 +181,20 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
             setIsEditing(id);
             return;
         }
+        const token = localStorage.getItem('token');
         const totalWithInterest = calculateTotalWithSmartInterest(debt);
         let updateData = {
             status: newStatus,
-            amountPaid: newStatus === 'Fully Paid' ? totalWithInterest : (newStatus === 'Pending' ? 0 : debt.amountPaid)
+            amountPaid: newStatus === 'Fully Paid' ? totalWithInterest : (newStatus === 'Unpaid' ? 0 : debt.amountPaid)
         };
         if (newStatus === 'Fully Paid') {
             updateData.datePaid = new Date().toLocaleDateString('en-CA');
             updateData.paymentMethod = 'Cash';
         }
         try {
-            await axios.patch(`http://localhost:5000/api/debts/${id}/status`, updateData);
+            await axios.patch(`http://localhost:5000/api/debts/${id}/status`, updateData, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
             setIsEditing(null);
             fetchDebts();
         } catch (error) {
@@ -304,7 +319,7 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
                                                                             onChange={(e) => handleStatusChange(debt._id, e.target.value, debt.amountPaid)}
                                                                         >
                                                                             {displayStatus !== 'Overdue' && (
-                                                                                <option value="Pending" className={darkMode ? 'bg-dark text-white' : 'bg-white text-dark'}>Pending</option>
+                                                                                <option value="Unpaid" className={darkMode ? 'bg-dark text-white' : 'bg-white text-dark'}>Unpaid</option>
                                                                             )}
                                                                             <option value="Partially Paid" className={darkMode ? 'bg-dark text-white' : 'bg-white text-dark'}>Partially Paid</option>
                                                                             <option value="Fully Paid" className={darkMode ? 'bg-dark text-white' : 'bg-white text-dark'}>Fully Paid</option>
@@ -324,9 +339,19 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
                                                                             const remainingBalance = totalToPay - currentAmountPaid;
                                                                             if (inputVal > remainingBalance) return alert(`Payment exceeds balance!`);
                                                                             const newTotalPaid = (debt.amountPaid || 0) + inputVal;
-                                                                            let finalStatus = newTotalPaid >= totalWithInterest ? 'Fully Paid' : (debt.status === 'Overdue' ? 'Overdue' : 'Partially Paid');
+                                                                            let finalStatus = newTotalPaid >= totalToPay ? 'Fully Paid' : (debt.status === 'Overdue' ? 'Overdue' : 'Partially Paid');
                                                                             try {
-                                                                                await axios.patch(`http://localhost:5000/api/debts/${debt._id}/status`, { status: finalStatus, amountPaid: newTotalPaid, datePaid: finalStatus === 'Fully Paid' ? today : null });
+                                                                                const token = localStorage.getItem('token');
+                                                                                await axios.patch(`http://localhost:5000/api/debts/${debt._id}/status`,
+                                                                                    {
+                                                                                        status: finalStatus,
+                                                                                        amountPaid: newTotalPaid,
+                                                                                        datePaid: finalStatus === 'Fully Paid' ? today : null
+                                                                                    },
+                                                                                    {
+                                                                                        headers: { 'Authorization': `Bearer ${token}` }
+                                                                                    }
+                                                                                );
                                                                                 setIsEditing(null);
                                                                                 setPartialInput({ ...partialInput, [debt._id]: '' });
                                                                                 fetchDebts();
