@@ -206,11 +206,12 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
         const debt = debts.find(d => d._id === id);
         if (!debt) return;
         try {
+            const token = localStorage.getItem('token');
             await axios.patch(`http://localhost:5000/api/debts/${id}/status`, {
                 status: debt.status,
                 amountPaid: debt.amountPaid,
                 paymentMethod: newMethod
-            });
+            }, {headers: { 'Authorization': `Bearer ${token}` }});
             fetchDebts();
         } catch (error) {
             console.error("Update failed:", error);
