@@ -46,7 +46,7 @@ router.patch('/:id/status', async (req, res) => {
                 paymentMethod,
                 datePaid
             },
-            { new: true }
+            { returnDocument: 'after' }
         );
 
         res.json(updatedDebt);
