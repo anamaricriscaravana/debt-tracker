@@ -20,24 +20,40 @@ import DebtTracker from './components/DebtTracker';
 import Login from './components/Login';
 
 function App() {
+  // --- Authentication & User State ---
+  // Retrieve token and username from localStorage for session persistence
   const [token, setToken] = useState(localStorage.getItem('token'));
-  const [mode, setMode] = useState(() => { return localStorage.getItem('appTheme') || 'light'; });
-  const [totalDebt, setTotalDebt] = useState(0);
-  const [currentView, setCurrentView] = useState('active');
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
   const [username, setUsername] = useState(localStorage.getItem('username') || '');
 
+  // --- UI & Theme State ---
+  // Default to light mode unless saved otherwise in localStorage
+  const [mode, setMode] = useState(() => { return localStorage.getItem('appTheme') || 'light'; });
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  // --- Data Synchronization State ---
+  // totalDebt and currentView are updated by the child (DebtTracker) and displayed in the Header
+  const [totalDebt, setTotalDebt] = useState(0);
+  const [currentView, setCurrentView] = useState('active');
+
+  // --- Profile Menu State ---
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+
+  // Persistence: Save theme preference whenever it changes
   useEffect(() => {
     localStorage.setItem('appTheme', mode);
   }, [mode]);
 
+  // Real-time Clock: Update time every second
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
+  /**
+   * Material UI Theme Configuration
+   * useMemo optimizes performance by only recalculating the theme when 'mode' changes
+   */
   const theme = useMemo(
     () =>
       createTheme({
@@ -54,6 +70,7 @@ function App() {
     [mode]
   );
 
+  // --- Event Handlers ---
   const toggleColorMode = () => {
     setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
   };
@@ -66,6 +83,9 @@ function App() {
     setAnchorEl(null);
   };
 
+  /**
+   * Clears session data and resets state to redirect user to the Login page
+   */
   const handleLogout = () => {
     handleClose();
     localStorage.removeItem('token');
@@ -76,6 +96,7 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
+      {/* CssBaseline kicks in to normalize styles and apply background colors */}
       <CssBaseline />
       <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
 
@@ -90,6 +111,8 @@ function App() {
             py: { xs: 2, md: 1 },
             px: 4
           }}>
+
+            {/* --- Application Branding --- */}
             <Typography variant="h5" sx={{
               fontWeight: '900',
               letterSpacing: '1px',
@@ -100,6 +123,7 @@ function App() {
               DEBT TRACKER
             </Typography>
 
+            {/* --- Dynamic Stats & Clock Section --- */}
             <Box sx={{
               display: 'flex',
               alignItems: 'center',
@@ -110,6 +134,8 @@ function App() {
               ml: { md: 'auto' },
               mr: { md: 2 }
             }}>
+
+              {/* Only show balance summary if user is logged in */}
               {token && (
                 <>
                   <Box sx={{ textAlign: 'center', color: '#fff' }}>
@@ -121,6 +147,7 @@ function App() {
                     </Typography>
                   </Box>
 
+                  {/* Vertical Divider */}
                   <Box sx={{
                     height: '30px',
                     width: '1px',
@@ -131,6 +158,7 @@ function App() {
                 </>
               )}
 
+              {/* Digital Clock and Calendar Display */}
               <Box sx={{ textAlign: 'center', color: '#fff' }}>
                 <Typography sx={{ fontWeight: 'bold', fontSize: '0.75rem' }}>
                   {currentTime.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
@@ -141,6 +169,7 @@ function App() {
               </Box>
             </Box>
 
+            {/* --- Utility Controls: Theme Toggle & Profile --- */}
             <Box sx={{
               display: 'flex',
               alignItems: 'center',
@@ -155,6 +184,7 @@ function App() {
                 </IconButton>
               </Tooltip>
 
+              {/* Avatar shows the first initial of the logged-in user */}
               {token && (
                 <IconButton onClick={handleProfileClick} sx={{ p: 0 }}>
                   <Avatar sx={{
@@ -162,13 +192,14 @@ function App() {
                     width: 32, height: 32, fontSize: '0.85rem', fontWeight: 'bold',
                     border: '2px solid rgba(255,255,255,0.2)'
                   }}>
-                    {username ? username.charAt(0).toUpperCase() : 'U'}                
-                      </Avatar>
+                    {username ? username.charAt(0).toUpperCase() : 'U'}
+                  </Avatar>
                 </IconButton>
               )}
             </Box>
           </Toolbar>
 
+          {/* --- User Profile Dropdown Menu --- */}
           <Menu
             anchorEl={anchorEl}
             open={open}
@@ -223,6 +254,9 @@ function App() {
           </Menu>
         </AppBar>
 
+        {/* --- Main Content Area --- 
+            Conditional Rendering: If no token, show Login. Otherwise, show DebtTracker.
+        */}
         <Box sx={{ flexGrow: 1 }}>
           {!token ? (
             <Login setToken={setToken} setUsername={setUsername} />
