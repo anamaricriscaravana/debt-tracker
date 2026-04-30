@@ -1,20 +1,27 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { 
-  Container, 
-  Box, 
-  Typography, 
-  TextField, 
-  Button, 
-  Paper, 
-  Link,
-  Alert
+import {
+    Container,
+    Box,
+    Typography,
+    TextField,
+    Button,
+    Paper,
+    Link,
+    Alert
 } from '@mui/material';
 
-const Login = ({ setToken }) => {
+const Login = ({ setToken, setUsername }) => {
     const [isRegister, setIsRegister] = useState(false);
     const [credentials, setCredentials] = useState({ username: '', password: '', confirmPassword: '' });
     const [error, setError] = useState('');
+
+    const handleToggleMode = (e) => {
+        e.preventDefault();
+        setIsRegister(!isRegister);
+        setError('');
+        setCredentials({ username: '', password: '', confirmPassword: '' });
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -30,14 +37,15 @@ const Login = ({ setToken }) => {
                 username: credentials.username,
                 password: credentials.password
             });
-            
+
             if (isRegister) {
                 alert("Account created! You can now login.");
                 setIsRegister(false);
-                setCredentials({ username: '', password: '', confirmPassword: '' });
+                setCredentials({ username: '', password: '', confirmPassword: '' }); // Clear after register
             } else {
                 localStorage.setItem('token', res.data.token);
                 localStorage.setItem('username', res.data.username);
+                setUsername(res.data.username);
                 setToken(res.data.token);
             }
         } catch (err) {
@@ -64,7 +72,7 @@ const Login = ({ setToken }) => {
                             autoFocus
                             size="small"
                             value={credentials.username}
-                            onChange={(e) => setCredentials({...credentials, username: e.target.value})}
+                            onChange={(e) => setCredentials({ ...credentials, username: e.target.value })}
                         />
                         <TextField
                             margin="normal"
@@ -74,36 +82,36 @@ const Login = ({ setToken }) => {
                             type="password"
                             size="small"
                             value={credentials.password}
-                            onChange={(e) => setCredentials({...credentials, password: e.target.value})}
+                            onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
                         />
                         {isRegister && (
                             <TextField
-                                margin="dense"
+                                margin="normal"
                                 required
                                 fullWidth
                                 label="Confirm Password"
                                 type="password"
                                 size="small"
                                 value={credentials.confirmPassword}
-                                onChange={(e) => setCredentials({...credentials, confirmPassword: e.target.value})}
+                                onChange={(e) => setCredentials({ ...credentials, confirmPassword: e.target.value })}
                             />
                         )}
                         <Button
                             type="submit"
                             fullWidth
                             variant="contained"
-                            sx={{ mt: 2, mb: 1.5, py: 1, fontsize:'0.85rem', fontWeight: '600', borderRadius: 1.5 }}
-                            color={isRegister ? "success" : "primary"}
+                            color="primary"
+                            sx={{ mt: 2, mb: 1.5, py: 1, fontSize: '0.85rem', fontWeight: '600', borderRadius: 1.5 }}
                         >
                             {isRegister ? 'Register' : 'Login'}
                         </Button>
-                        
+
                         <Box sx={{ textAlign: 'center' }}>
-                            <Link 
-                                component="button" 
-                                variant="caption" 
-                                onClick={(e) => { e.preventDefault(); setIsRegister(!isRegister); setError(''); }}
-                                sx={{ textDecoration: 'none', color: 'text-secondary' }}
+                            <Link
+                                component="button"
+                                variant="caption"
+                                onClick={handleToggleMode}
+                                sx={{ textDecoration: 'none', color: 'text.secondary' }}
                             >
                                 {isRegister ? "Already have an account? Login" : "Don't have an account? Register"}
                             </Link>

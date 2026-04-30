@@ -27,6 +27,7 @@ function App() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
+  const [username, setUsername] = useState(localStorage.getItem('username') || '');
 
   useEffect(() => {
     localStorage.setItem('appTheme', mode);
@@ -70,6 +71,7 @@ function App() {
     localStorage.removeItem('token');
     localStorage.removeItem('username');
     setToken(null);
+    setUsername('');
   };
 
   return (
@@ -160,9 +162,7 @@ function App() {
                     width: 32, height: 32, fontSize: '0.85rem', fontWeight: 'bold',
                     border: '2px solid rgba(255,255,255,0.2)'
                   }}>
-                    {localStorage.getItem('username')
-                      ? localStorage.getItem('username').charAt(0).toUpperCase()
-                      : 'U'}                  
+                    {username ? username.charAt(0).toUpperCase() : 'U'}                
                       </Avatar>
                 </IconButton>
               )}
@@ -199,7 +199,7 @@ function App() {
           >
             <Box sx={{ px: 2, py: 1 }}>
               <Typography variant="subtitle2" sx={{ fontWeight: 'bold', fontSize: '0.85rem' }}>
-                {localStorage.getItem('username')}
+                {username}
               </Typography>
               <Typography variant="caption" color="text.secondary">Lender</Typography>
             </Box>
@@ -225,7 +225,7 @@ function App() {
 
         <Box sx={{ flexGrow: 1 }}>
           {!token ? (
-            <Login setToken={setToken} />
+            <Login setToken={setToken} setUsername={setUsername} />
           ) : (
             <DebtTracker
               darkMode={mode === 'dark'}
