@@ -33,17 +33,13 @@ const DebtTracker = () => {
     });
 
     useEffect(() => {
-        if (darkMode) {
-            localStorage.setItem('debtTrackerTheme', 'dark');
-        } else {
-            localStorage.setItem('debtTrackerTheme', 'light');
-        }
+        localStorage.setItem('debtTrackerTheme', darkMode ? 'dark' : 'light');
     }, [darkMode]);
 
     const fetchDebts = async () => {
         try {
             const response = await axios.get('http://localhost:5000/api/debts/all');
-            setDebts(response.data);
+            setDebts(response.data || []);
         } catch (error) {
             console.error('Error fetching debts:', error);
         }
@@ -54,11 +50,19 @@ const DebtTracker = () => {
     }, []);
 
     const calculateTotalWithSmartInterest = (debt) => {
+        if (!debt) return 0;
+
         const baseAmount = parseFloat(debt.amount || 0);
         const interestVal = parseFloat(debt.interest || 0);
         const amountPaid = parseFloat(debt.amountPaid || 0);
         const isPastDueDate = debt.dueDate && today > debt.dueDate;
-        const shouldApplyInterest = (isPastDueDate || debt.status === 'Overdue' || amountPaid > baseAmount || debt.status === 'Fully Paid') && interestVal > 0;
+        const shouldApplyInterest = (
+            isPastDueDate ||
+            debt.status === 'Overdue' ||
+            amountPaid > baseAmount ||
+            debt.status === 'Fully Paid'
+        ) && interestVal > 0;
+
         if (debt.status === 'Fully Paid' && amountPaid > baseAmount) {
             return amountPaid;
         }
@@ -68,6 +72,7 @@ const DebtTracker = () => {
     };
 
     const filteredDebts = debts.filter(debt => {
+        if (!debt) return false;
         const search = searchTerm.toLowerCase();
 
         const totalWithInterest = calculateTotalWithSmartInterest(debt);
@@ -379,13 +384,14 @@ const DebtTracker = () => {
                                                                                 return alert(`Payment exceeds remaining balance! Remaining: ₱${remainingBalance.toLocaleString()}`);
                                                                             }
 
-                                                                            const newTotalPaid = currentAmountPaid + inputVal;
-                                                                            let finalStatus = 'Partially Paid';
+                                                                            const newTotalPaid = (debt.amountPaid || 0) + inputVal;
 
-                                                                            if (newTotalPaid >= totalToPay) {
+                                                                            let finalStatus;
+                                                                            if (newTotalPaid >= totalWithInterest) {
                                                                                 finalStatus = 'Fully Paid';
+                                                                            } else {
+                                                                                finalStatus = debt.status === 'Overdue' ? 'Overdue' : 'Partially Paid';
                                                                             }
-
                                                                             try {
                                                                                 await axios.patch(`http://localhost:5000/api/debts/${debt._id}/status`, {
                                                                                     status: finalStatus,
