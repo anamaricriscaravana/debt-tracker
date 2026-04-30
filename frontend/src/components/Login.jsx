@@ -13,19 +13,28 @@ import {
 
 const Login = ({ setToken }) => {
     const [isRegister, setIsRegister] = useState(false);
-    const [credentials, setCredentials] = useState({ username: '', password: '' });
+    const [credentials, setCredentials] = useState({ username: '', password: '', confirmPassword: '' });
     const [error, setError] = useState('');
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+
+        if (isRegister && credentials.password !== credentials.confirmPassword) {
+            return setError("Passwords do not match!");
+        }
+
         const endpoint = isRegister ? 'register' : 'login';
         try {
-            const res = await axios.post(`http://localhost:5000/api/auth/${endpoint}`, credentials);
+            const res = await axios.post(`http://localhost:5000/api/auth/${endpoint}`, {
+                username: credentials.username,
+                password: credentials.password
+            });
             
             if (isRegister) {
                 alert("Account created! You can now login.");
                 setIsRegister(false);
+                setCredentials({ username: '', password: '', confirmPassword: '' });
             } else {
                 localStorage.setItem('token', res.data.token);
                 localStorage.setItem('username', res.data.username);
@@ -67,6 +76,18 @@ const Login = ({ setToken }) => {
                             value={credentials.password}
                             onChange={(e) => setCredentials({...credentials, password: e.target.value})}
                         />
+                        {isRegister && (
+                            <TextField
+                                margin="dense"
+                                required
+                                fullWidth
+                                label="Confirm Password"
+                                type="password"
+                                size="small"
+                                value={credentials.confirmPassword}
+                                onChange={(e) => setCredentials({...credentials, confirmPassword: e.target.value})}
+                            />
+                        )}
                         <Button
                             type="submit"
                             fullWidth
@@ -81,7 +102,7 @@ const Login = ({ setToken }) => {
                             <Link 
                                 component="button" 
                                 variant="caption" 
-                                onClick={(e) => { e.preventDefault(); setIsRegister(!isRegister); }}
+                                onClick={(e) => { e.preventDefault(); setIsRegister(!isRegister); setError(''); }}
                                 sx={{ textDecoration: 'none', color: 'text-secondary' }}
                             >
                                 {isRegister ? "Already have an account? Login" : "Don't have an account? Register"}
