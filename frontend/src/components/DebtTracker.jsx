@@ -3,7 +3,10 @@ import axios from 'axios';
 import './DebtTracker.css';
 
 const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
+    // --- State & Constants Initialization ---
     const today = new Date().toLocaleDateString('en-CA');
+
+    // Form state for adding new debt records
     const [formData, setFormData] = useState({ debtorName: '', amount: '', debtDate: today, dueDate: '', interest: '' });
     const [debts, setDebts] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
@@ -12,6 +15,7 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
     const [isEditing, setIsEditing] = useState(null);
     const [view, setView] = useState('active');
 
+    // Configuration for payment method badge styles
     const paymentMethods = [
         { label: 'Cash', color: 'bg-success' },
         { label: 'E-Wallet', color: 'bg-primary' },
@@ -19,6 +23,9 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
         { label: 'Others', color: 'bg-secondary' }
     ];
 
+    /**
+     * Fetch all debt records for the logged-in user from the backend
+     */
     const fetchDebts = async () => {
         try {
             const token = localStorage.getItem('token');
@@ -34,10 +41,15 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
         }
     };
 
+    // Initial data load on component mount
     useEffect(() => {
         fetchDebts();
     }, []);
 
+    /**
+     * Logic to calculate the final amount including interest.
+     * Interest is applied if: Overdue, Fully Paid (historical), or if payments exceed base amount.
+     */
     const calculateTotalWithSmartInterest = (debt) => {
         if (!debt) return 0;
         const baseAmount = parseFloat(debt.amount || 0);
@@ -51,6 +63,7 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
             debt.status === 'Fully Paid'
         ) && interestVal > 0;
 
+        // Ensure we display the actual paid amount if it was a settled overpayment
         if (debt.status === 'Fully Paid' && amountPaid > baseAmount) {
             return amountPaid;
         }
@@ -59,6 +72,9 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
         return baseAmount + appliedInterest;
     };
 
+    /**
+     * Filter master list based on search term (Search across Name, Status, Dates, and Amounts)
+     */
     const filteredDebts = debts.filter(debt => {
         if (!debt) return false;
         const search = searchTerm.toLowerCase();
@@ -69,7 +85,8 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
         return (
             (debt.debtorName || "").toLowerCase().includes(search) ||
             (debt.status || "").toLowerCase().includes(search) ||
-            dueDateDisplay.toLowerCase().includes(search) || // DITO ANG FIX: Isama ang literal na string            (debt.debtDate || "").toLowerCase().includes(search) ||
+            dueDateDisplay.toLowerCase().includes(search) ||
+            (debt.debtDate || "").toLowerCase().includes(search) ||
             debt.amount.toString().includes(search) ||
             (debt.interest && debt.interest.toString().includes(search)) ||
             totalWithInterest.toString().includes(search) ||
@@ -77,6 +94,9 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
         );
     });
 
+    /**
+     * Sets the sorting column and toggles direction
+     */
     const requestSort = (key) => {
         let direction = 'asc';
         if (sortConfig.key === key && sortConfig.direction === 'asc') {
@@ -85,8 +105,12 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
         setSortConfig({ key, direction });
     };
 
+    /**
+     * Apply sorting to the filtered list
+     */
     const sortedDebts = [...filteredDebts].sort((a, b) => {
         let aValue, bValue;
+        // Custom logic for sorting by calculated total balance
         if (sortConfig.key === 'totalAmount') {
             aValue = calculateTotalWithSmartInterest(a) - (a.amountPaid || 0);
             bValue = calculateTotalWithSmartInterest(b) - (b.amountPaid || 0);
@@ -94,6 +118,7 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
             aValue = a[sortConfig.key];
             bValue = b[sortConfig.key];
         }
+        // Handle numeric sorting for amount and interest strings
         if (['amount', 'interest'].includes(sortConfig.key)) {
             aValue = parseFloat(aValue || 0);
             bValue = parseFloat(bValue || 0);
@@ -103,6 +128,9 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
         return 0;
     });
 
+    /**
+     * Split sorted debts into "Active" or "History" based on the selected view toggle
+     */
     const displayDebts = sortedDebts.filter(debt => {
         if (view === 'active') {
             return debt.status !== 'Fully Paid';
@@ -111,6 +139,9 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
         }
     });
 
+    /**
+     * Calculate aggregate totals to be displayed in the App Header
+     */
     const totalDebt = displayDebts.reduce((acc, curr) => {
         const totalWithInterest = calculateTotalWithSmartInterest(curr);
         if (view === 'active') {
@@ -121,16 +152,23 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
         }
     }, 0);
 
+    // Synchronize local total/view with the parent App header
     useEffect(() => {
         setHeaderTotal(totalDebt);
         setHeaderView(view);
     }, [totalDebt, view, setHeaderTotal, setHeaderView]);
 
+    /**
+     * Handle input changes for the "Add Debt" form
+     */
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
     };
 
+    /**
+     * API call to delete a record with user confirmation
+     */
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this debt record?')) {
             try {
@@ -146,6 +184,9 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
         }
     };
 
+    /**
+     * Form submission handler to create a new debt record
+     */
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (formData.dueDate && formData.dueDate < formData.debtDate) {
@@ -174,9 +215,13 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
         }
     };
 
+    /**
+     * Update the status of a debt (Unpaid, Partially Paid, Fully Paid, Overdue)
+     */
     const handleStatusChange = async (id, newStatus, amount = 0) => {
         const debt = debts.find(d => d._id === id);
         if (!debt) return;
+        // If "Partially Paid" is selected, trigger the inline input field
         if (newStatus === 'Partially Paid') {
             setIsEditing(id);
             return;
@@ -185,6 +230,7 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
         const totalWithInterest = calculateTotalWithSmartInterest(debt);
         let updateData = {
             status: newStatus,
+            // If fully paid, set amountPaid to the full calculated total
             amountPaid: newStatus === 'Fully Paid' ? totalWithInterest : (newStatus === 'Unpaid' ? 0 : debt.amountPaid)
         };
         if (newStatus === 'Fully Paid') {
@@ -202,6 +248,9 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
         }
     };
 
+    /**
+     * Update payment method for settled debts (Historical View)
+     */
     const handleMethodChange = async (id, newMethod) => {
         const debt = debts.find(d => d._id === id);
         if (!debt) return;
@@ -223,7 +272,7 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
         <div className={`min-vh-100 ${darkMode ? 'bg-dark text-white' : 'bg-light'} w-100 overflow-hidden transition-all`}>
             <div className="container-fluid px-md-4 px-2 py-4">
                 <div className="row g-4">
-                    {/* Record Form Side: xxl-3 breakpoint para lumuwag sa 1227px */}
+                    {/* Record Form */}
                     <div className="col-12 col-xxl-3">
                         <div className={`card shadow-sm border-0 sticky-xxl-top ${darkMode ? 'bg-secondary text-white shadow-lg' : 'bg-white'}`} style={{ top: '20px' }}>
                             <div className="card-body p-4">
@@ -255,7 +304,7 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
                         </div>
                     </div>
 
-                    {/* Table Side: col-xxl-9 para full width sa 1227px */}
+                    {/* --- Main Content: Debt Table --- */}
                     <div className="col-12 col-xxl-9">
                         <div className={`card shadow-sm border-0 w-100 ${darkMode ? 'bg-secondary text-white' : 'bg-white'}`}>
                             <div className="card-body p-2 p-md-4">
@@ -326,6 +375,7 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
                                                                         </select>
                                                                     </div>
                                                                 </div>
+
                                                                 {isEditing === debt._id && (
                                                                     <div className="mt-2 d-flex gap-1 justify-content-center animate__animated animate__fadeIn">
                                                                         <input type="number" className={`form-control form-control-sm ${darkMode ? 'bg-dark text-white border-secondary' : ''}`} style={{ width: '60px', fontSize: '0.75rem' }} placeholder="Amt" autoFocus value={partialInput[debt._id] || ''} onChange={(e) => setPartialInput({ ...partialInput, [debt._id]: e.target.value })}
