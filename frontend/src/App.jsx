@@ -21,13 +21,17 @@ import Login from './components/Login';
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem('token'));
-  const [mode, setMode] = useState('light');
+  const [mode, setMode] = useState(() => {return localStorage.getItem('appTheme') || 'light';}); 
   const [totalDebt, setTotalDebt] = useState(0);
   const [currentView, setCurrentView] = useState('active');
   const [currentTime, setCurrentTime] = useState(new Date());
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
+  useEffect(() => {
+    localStorage.setItem('appTheme', mode);
+  }, [mode]);
+  
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
@@ -72,9 +76,9 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-        
-        <AppBar 
-          position="static" 
+
+        <AppBar
+          position="static"
           sx={{ bgcolor: mode === 'dark' ? '#000000' : '#007bff', transition: 'background-color 0.3s' }}
         >
           <Toolbar sx={{ justifyContent: 'space-between', px: 4 }}>
@@ -165,8 +169,8 @@ function App() {
           {!token ? (
             <Login setToken={setToken} />
           ) : (
-            <DebtTracker 
-              darkMode={mode === 'dark'} 
+            <DebtTracker
+              darkMode={mode === 'dark'}
               setHeaderTotal={setTotalDebt}
               setHeaderView={setCurrentView}
             />
