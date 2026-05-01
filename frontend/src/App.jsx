@@ -113,15 +113,32 @@ function App() {
           }}>
 
             {/* --- Application Branding --- */}
-            <Typography variant="h5" sx={{
-              fontWeight: '900',
-              letterSpacing: '1px',
-              color: '#fff',
-              textAlign: 'center',
-              width: { xs: '100%', md: 'auto' }
+            <Box sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1.5,
+              width: { xs: '100%', md: 'auto' },
+              justifyContent: { xs: 'center', md: 'flex-start' }
             }}>
-              DEBT TRACKER
-            </Typography>
+              {/* Favicon / Logo Image */}
+              <img
+                src="/favicon.svg"
+                alt="Logo"
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  filter: 'brightness(0) invert(1)'
+                }}
+              />
+              <Typography variant="h5" sx={{
+                fontWeight: '900',
+                letterSpacing: '1px',
+                color: '#fff',
+                textTransform: 'uppercase'
+              }}>
+                ReCollect
+              </Typography>
+            </Box>
 
             {/* --- Dynamic Stats & Clock Section --- */}
             <Box sx={{
