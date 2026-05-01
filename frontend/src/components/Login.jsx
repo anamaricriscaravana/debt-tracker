@@ -33,7 +33,7 @@ const Login = ({ setToken, setUsername }) => {
 
         const endpoint = isRegister ? 'register' : 'login';
         try {
-            const res = await axios.post(`https://rec-f3atbnfsgpe3cpdd.southeastasia-01.azurewebsites.net/api/auth/${endpoint}`, {
+            const res = await axios.post(`https://recollect-c2bpdeedf6hucjey.southeastasia-01.azurewebsites.net/api/auth/${endpoint}`, {
                 username: credentials.username,
                 password: credentials.password
             });
