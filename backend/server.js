@@ -6,7 +6,13 @@ const authRoutes = require('./routes/authRoutes');
 const debtRoutes = require('./routes/debtRoutes');
 
 const app = express();
-app.use(cors());
+app.set('trust proxy', 1)
+app.use(cors({
+    origin: ['https://recollect-frontend-c0c2a0gadkfdcgav.southeastasia-01.azurewebsites.net', 'http://localhost:5173'],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/debts', debtRoutes);
