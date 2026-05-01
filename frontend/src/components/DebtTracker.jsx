@@ -29,7 +29,7 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
     const fetchDebts = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get('http://rec-f3atbnfsgpe3cpdd.southeastasia-01.azurewebsites.net/api/debts/all', {
+            const response = await axios.get('https://rec-f3atbnfsgpe3cpdd.southeastasia-01.azurewebsites.net/api/debts/all', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             setDebts(response.data || []);
@@ -173,7 +173,7 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
         if (window.confirm('Are you sure you want to delete this debt record?')) {
             try {
                 const token = localStorage.getItem('token');
-                await axios.delete(`http://rec-f3atbnfsgpe3cpdd.southeastasia-01.azurewebsites.net/api/debts/${id}`, {
+                await axios.delete(`https://rec-f3atbnfsgpe3cpdd.southeastasia-01.azurewebsites.net/api/debts/${id}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 await fetchDebts();
@@ -204,7 +204,7 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
                 paymentMethod: 'Cash',
                 amountPaid: 0
             };
-            await axios.post('http://rec-f3atbnfsgpe3cpdd.southeastasia-01.azurewebsites.net/api/debts/add', dataToSave, {
+            await axios.post('https://rec-f3atbnfsgpe3cpdd.southeastasia-01.azurewebsites.net/api/debts/add', dataToSave, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             await fetchDebts();
@@ -238,7 +238,7 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
             updateData.paymentMethod = 'Cash';
         }
         try {
-            await axios.patch(`http://rec-f3atbnfsgpe3cpdd.southeastasia-01.azurewebsites.net/api/debts/${id}/status`, updateData, {
+            await axios.patch(`https://rec-f3atbnfsgpe3cpdd.southeastasia-01.azurewebsites.net/api/debts/${id}/status`, updateData, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             setIsEditing(null);
@@ -256,7 +256,7 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
         if (!debt) return;
         try {
             const token = localStorage.getItem('token');
-            await axios.patch(`http://rec-f3atbnfsgpe3cpdd.southeastasia-01.azurewebsites.net/api/debts/${id}/status`, {
+            await axios.patch(`https://rec-f3atbnfsgpe3cpdd.southeastasia-01.azurewebsites.net/api/debts/${id}/status`, {
                 status: debt.status,
                 amountPaid: debt.amountPaid,
                 paymentMethod: newMethod
@@ -391,7 +391,7 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
                                                                             let finalStatus = newTotalPaid >= totalToPay ? 'Fully Paid' : (debt.status === 'Overdue' ? 'Overdue' : 'Partially Paid');
                                                                             try {
                                                                                 const token = localStorage.getItem('token');
-                                                                                await axios.patch(`http://rec-f3atbnfsgpe3cpdd.southeastasia-01.azurewebsites.net/api/debts/${debt._id}/status`,
+                                                                                await axios.patch(`https://rec-f3atbnfsgpe3cpdd.southeastasia-01.azurewebsites.net/api/debts/${debt._id}/status`,
                                                                                     {
                                                                                         status: finalStatus,
                                                                                         amountPaid: newTotalPaid,
