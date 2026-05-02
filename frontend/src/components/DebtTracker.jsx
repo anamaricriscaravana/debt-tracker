@@ -391,7 +391,7 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
                                                                             let finalStatus = newTotalPaid >= totalToPay ? 'Fully Paid' : (debt.status === 'Overdue' ? 'Overdue' : 'Partially Paid');
                                                                             try {
                                                                                 const token = localStorage.getItem('token');
-                                                                                await axios.patch(`recollect-c2bpdeedf6hucjey.southeastasia-01.azurewebsites.net/api/debts/${debt._id}/status`,
+                                                                                await axios.patch(`https://recollect-c2bpdeedf6hucjey.southeastasia-01.azurewebsites.net/api/debts/${debt._id}/status`,
                                                                                     {
                                                                                         status: finalStatus,
                                                                                         amountPaid: newTotalPaid,
