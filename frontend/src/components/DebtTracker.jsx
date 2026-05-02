@@ -197,9 +197,12 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
         }
         try {
             const token = localStorage.getItem('token');
+            const finalInterest = formData.interest === '' ? 0 : parseFloat(formData.interest);
             const dataToSave = {
                 ...formData,
                 amount: parseFloat(formData.amount),
+                interest: finalInterest,
+                debtDate: new Date(formData.debtDate).toLocaleDateString('en-CA'),
                 status: 'Unpaid',
                 paymentMethod: 'Cash',
                 amountPaid: 0
@@ -208,7 +211,7 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             await fetchDebts();
-            setFormData({ debtorName: '', amount: '', debtDate: today, dueDate: '', interest: '0' });
+            setFormData({ debtorName: '', amount: '', debtDate: today, dueDate: '', interest: '' });
         } catch (error) {
             console.error('Error adding debt:', error.response?.data || error);
             alert("Failed to add debt. Please check your input and try again.");
