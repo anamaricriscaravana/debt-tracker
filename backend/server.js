@@ -14,6 +14,9 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
+app.get('/health', (req, res) => {
+    res.status(200).send('Server is healthy and running!');
+});
 app.use('/api/auth', authRoutes);
 app.use('/api/debts', debtRoutes);
 
