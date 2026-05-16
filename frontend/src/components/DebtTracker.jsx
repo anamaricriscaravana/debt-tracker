@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './DebtTracker.css';
 
-const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
+const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView, onLogout }) => {
     // --- State & Constants Initialization ---
     const today = new Date().toLocaleDateString('en-CA');
 
@@ -37,6 +37,7 @@ const DebtTracker = ({ darkMode, setHeaderTotal, setHeaderView }) => {
             console.error('Error fetching debts:', error);
             if (error.response?.status === 401) {
                 alert("Session expired. Please login again.");
+                onLogout();
             }
         }
     };

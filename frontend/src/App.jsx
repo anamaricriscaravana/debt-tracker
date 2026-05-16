@@ -282,6 +282,7 @@ function App() {
               darkMode={mode === 'dark'}
               setHeaderTotal={setTotalDebt}
               setHeaderView={setCurrentView}
+              onLogout={handleLogout}
             />
           )}
         </Box>
